@@ -1,4 +1,6 @@
-﻿namespace OmegaAssetStudio.Retargeting;
+﻿using static OmegaAssetStudio.Retargeting.BoneNameHeuristics;
+
+namespace OmegaAssetStudio.Retargeting;
 
 public sealed class BoneMapper
 {
@@ -281,12 +283,10 @@ public sealed class BoneMapper
 
     private static BoneSide ResolveSide(string normalized)
     {
-        if (ContainsAny(normalized, "left", "lft", "lhand", "larm", "lleg", "lclav", "lshoulder", "leye") ||
-            normalized.StartsWith("l", StringComparison.Ordinal))
+        if (ContainsAny(normalized, "left", "lft", "lhand", "larm", "lleg", "lclav", "lshoulder", "leye"))
             return BoneSide.Left;
 
-        if (ContainsAny(normalized, "right", "rgt", "rhand", "rarm", "rleg", "rclav", "rshoulder", "reye") ||
-            normalized.StartsWith("r", StringComparison.Ordinal))
+        if (ContainsAny(normalized, "right", "rgt", "rhand", "rarm", "rleg", "rclav", "rshoulder", "reye"))
             return BoneSide.Right;
 
         return BoneSide.Unknown;
@@ -368,38 +368,6 @@ public sealed class BoneMapper
         return ContainsAny(normalized, "offset", "twist", "helper", "ik", "effector", "attach", "weapon", "throwable");
     }
 
-    private enum BoneSide
-    {
-        Unknown,
-        Left,
-        Right
-    }
-
-    private enum BoneRegion
-    {
-        Unknown,
-        Root,
-        Pelvis,
-        Spine,
-        Neck,
-        Head,
-        Shoulder,
-        UpperArm,
-        Forearm,
-        Hand,
-        Thumb,
-        IndexFinger,
-        MiddleFinger,
-        RingFinger,
-        PinkyFinger,
-        Thigh,
-        Calf,
-        Foot,
-        Toe,
-        Ik,
-        Attachment
-    }
-
     private enum FingerDigit
     {
         Unknown,
@@ -410,4 +378,5 @@ public sealed class BoneMapper
         Pinky
     }
 }
+
 

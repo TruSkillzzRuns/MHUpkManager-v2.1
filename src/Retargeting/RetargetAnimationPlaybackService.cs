@@ -75,7 +75,12 @@ public sealed class RetargetAnimationPlaybackService
             throw new InvalidOperationException("The selected mesh does not contain any bones for animation playback.");
 
         Matrix4x4[] bindGlobals = posedMesh.Bones.Select(static bone => bone.GlobalTransform).ToArray();
-        Matrix4x4[] posedGlobals = posedMesh.Bones.Select(static bone => bone.LocalTransform).ToArray();
+        Matrix4x4[] posedGlobals = new Matrix4x4[posedMesh.Bones.Count];
+        for (int i = 0; i < posedMesh.Bones.Count; i++)
+            posedGlobals[i] = Matrix4x4.Identity;
+        Matrix4x4[] posedLocals = new Matrix4x4[posedMesh.Bones.Count];
+        for (int i = 0; i < posedMesh.Bones.Count; i++)
+            posedLocals[i] = posedMesh.Bones[i].LocalTransform;
         Dictionary<string, int> boneIndexByName = BuildBoneIndexLookup(posedMesh.Bones);
 
         float sequenceLength = sequence.SequenceLength > 1e-5f
@@ -111,9 +116,9 @@ public sealed class RetargetAnimationPlaybackService
             if (boneIndex < 0 || boneIndex >= posedMesh.Bones.Count)
                 continue;
 
-            Quaternion rotation = EvaluateRotation(sequence, trackIndex, sampleFrame);
-            Vector3 translation = EvaluateTranslation(sequence, trackIndex, sampleFrame);
-            posedGlobals[boneIndex] = Matrix4x4.CreateFromQuaternion(rotation) * Matrix4x4.CreateTranslation(translation);
+            Quaternion rotation = ConvertUe3Rotation(EvaluateRotation(sequence, trackIndex, sampleFrame));
+            Vector3 translation = ConvertUe3Translation(EvaluateTranslation(sequence, trackIndex, sampleFrame));
+            posedLocals[boneIndex] = Matrix4x4.CreateFromQuaternion(rotation) * Matrix4x4.CreateTranslation(translation);
             appliedTracks++;
         }
 
@@ -123,9 +128,8 @@ public sealed class RetargetAnimationPlaybackService
             Matrix4x4 parentGlobal = parentIndex >= 0 && parentIndex < posedGlobals.Length
                 ? posedGlobals[parentIndex]
                 : Matrix4x4.Identity;
-            Matrix4x4 local = posedGlobals[i];
-            Matrix4x4 global = local * parentGlobal;
-            posedMesh.Bones[i].LocalTransform = local;
+            Matrix4x4 global = posedLocals[i] * parentGlobal;
+            posedMesh.Bones[i].LocalTransform = posedLocals[i];
             posedMesh.Bones[i].GlobalTransform = global;
             posedGlobals[i] = global;
         }
@@ -398,5 +402,9 @@ public sealed class RetargetAnimationPlaybackService
     {
         return value.LengthSquared() > 1e-6f ? Vector3.Normalize(value) : fallback;
     }
+
+    private static Vector3 ConvertUe3Translation(Vector3 ue3) => new(ue3.X, ue3.Z, ue3.Y);
+
+    private static Quaternion ConvertUe3Rotation(Quaternion ue3) => new(ue3.X, ue3.Z, ue3.Y, ue3.W);
 }
 

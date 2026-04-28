@@ -164,14 +164,50 @@ public static class AnimationTransferReflection
             throw new ArgumentNullException(nameof(source));
 
         MethodInfo? cloneMethod = source.GetType().GetMethod("MemberwiseClone", BindingFlags.Instance | BindingFlags.NonPublic);
-        if (cloneMethod is not null)
+        UAnimSet clone = cloneMethod?.Invoke(source, null) is UAnimSet result ? result : source;
+        if (ReferenceEquals(clone, source))
+            return source;
+
+        foreach (PropertyInfo property in clone.GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance))
         {
-            object? cloned = cloneMethod.Invoke(source, null);
-            if (cloned is UAnimSet animSet)
-                return animSet;
+            if (!property.CanRead || !property.CanWrite)
+                continue;
+
+            object? value = null;
+            try
+            {
+                value = property.GetValue(clone);
+            }
+            catch
+            {
+                continue;
+            }
+
+            if (value is null)
+                continue;
+
+            Type valueType = value.GetType();
+            if (!valueType.IsGenericType)
+                continue;
+
+            Type genericDef = valueType.GetGenericTypeDefinition();
+            if (genericDef != typeof(List<>))
+                continue;
+
+            object? newList = Activator.CreateInstance(valueType, value);
+            if (newList is null)
+                continue;
+
+            try
+            {
+                property.SetValue(clone, newList);
+            }
+            catch
+            {
+            }
         }
 
-        return source;
+        return clone;
     }
 
     private static object? SafeGetValue(PropertyInfo property, object instance)

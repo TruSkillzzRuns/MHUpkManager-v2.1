@@ -1,0 +1,54 @@
+Auto-Fix Engine Workflow
+
+1. Open the Auto-Fix Engine tab.
+Go to UPK Migration and open the AutoFix tab. Confirm the header shows Auto-Fix Engine before entering paths.
+
+2. Set Region Root Path.
+Use Browse Region Root and select the migrated region folder that contains UPK, SIP, navmesh, and related files for one region. Do not point this to the game root or a parent folder that mixes unrelated regions.
+
+3. Set Backup Directory.
+Use Browse Backup Directory and choose a writable folder outside the region root. This folder stores per-file backups before any write operation.
+
+4. Set the old and new region prefixes.
+Fill Old Region Prefix and New Region Prefix with the exact prefix rewrite pair used by the migration output. These values drive Phase 2, Phase 4, and Phase 5 string patching.
+
+5. Configure prototype dependency input.
+If you have a rename manifest, set Prototype Manifest Path to that file. If no manifest is available, keep Auto-Scan Fallback enabled so Phase 3 can build mappings from available prototype packages.
+
+6. Configure world origin settings.
+Set World Origin Delta as X,Y,Z using comma-separated numeric values. Enable Fix HeightMap Origin only when heightmap origin data must be corrected.
+
+7. Configure package index repair target.
+Set Package Index Path to a .json or .bin index file. If you leave it empty, the engine defaults to RegionRootPath\\PackageIndex.json. Keep Auto-Create Missing Index enabled when the index file may not exist yet.
+
+8. Choose Dry Run mode first.
+Enable Dry Run for the first pass. This executes all enabled phases and reports WouldRepair status without writing file changes.
+
+9. Select enabled phases.
+Enable only the phases you want to run:
+Phase 1 - UPK Internal Name Repair
+Phase 2 - Streaming Level Repair
+Phase 3 - Prototype Dependency Repair
+Phase 4 - SIP Repair
+Phase 5 - NavMesh and HeightMap Repair
+Phase 6 - Package Index Repair
+Enable Remove Missing References only when you want Phase 2 to drop broken references.
+
+10. Execute the first pass.
+Click Run All Enabled Phases. Watch StatusMessage and Progress while each phase executes in order. Use Cancel if the path set is wrong or if output indicates a bad configuration.
+
+11. Review log and result counters.
+After completion, review Log entries for each phase summary and error lines. Check Results:
+Total Repaired
+Total Errors
+Completed At
+For dry runs, verify that expected files appear as WouldRepair before switching to write mode.
+
+12. Execute write pass.
+Disable Dry Run and rerun only the phases that were validated in dry run. Keep the same Region Root Path and Backup Directory so backup coverage remains consistent.
+
+13. Run targeted phase reruns if needed.
+Use Phase 1 through Phase 6 buttons for focused reruns after changing one input setting. This is preferred over full reruns when only one phase needs correction.
+
+14. Validate output and archive report data.
+Confirm patched files are present in region root and backups exist in backup directory. Keep the log and result counts with the migrated package set for audit and rollback tracking.

@@ -22,7 +22,11 @@ public sealed class MappingProfileManager
         DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
     };
 
-    public string ProfilesRoot { get; } = Path.Combine(AppContext.BaseDirectory, "Profiles", "Retargeting");
+    public string ProfilesRoot { get; } = Path.Combine(
+        Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+        "OmegaAssetStudio",
+        "Profiles",
+        "Retargeting");
 
     public string GetProfilePath(string profileName)
     {

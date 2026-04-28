@@ -89,18 +89,14 @@ public static class BoneNameHeuristics
 
         if (normalized.Contains("left", StringComparison.OrdinalIgnoreCase) ||
             normalized.Contains("lft", StringComparison.OrdinalIgnoreCase) ||
-            normalized.EndsWith("_l", StringComparison.OrdinalIgnoreCase) ||
-            normalized.EndsWith("l", StringComparison.Ordinal) ||
-            normalized.StartsWith("l", StringComparison.Ordinal))
+            normalized.EndsWith("_l", StringComparison.OrdinalIgnoreCase))
         {
             return BoneSide.Left;
         }
 
         if (normalized.Contains("right", StringComparison.OrdinalIgnoreCase) ||
             normalized.Contains("rgt", StringComparison.OrdinalIgnoreCase) ||
-            normalized.EndsWith("_r", StringComparison.OrdinalIgnoreCase) ||
-            normalized.EndsWith("r", StringComparison.Ordinal) ||
-            normalized.StartsWith("r", StringComparison.Ordinal))
+            normalized.EndsWith("_r", StringComparison.OrdinalIgnoreCase))
         {
             return BoneSide.Right;
         }
@@ -126,10 +122,10 @@ public static class BoneNameHeuristics
             _ when ContainsAny(normalized, "forearm", "forarm", "lowerarm", "elbow") => BoneRegion.Forearm,
             _ when ContainsAny(normalized, "hand", "palm", "wrist") => BoneRegion.Hand,
             _ when ContainsAny(normalized, "thumb") => BoneRegion.Thumb,
-            _ when ContainsAny(normalized, "index") => BoneRegion.Index,
-            _ when ContainsAny(normalized, "middle") => BoneRegion.Middle,
-            _ when ContainsAny(normalized, "ring") => BoneRegion.Ring,
-            _ when ContainsAny(normalized, "pinky", "little") => BoneRegion.Pinky,
+            _ when ContainsAny(normalized, "index") => BoneRegion.IndexFinger,
+            _ when ContainsAny(normalized, "middle") => BoneRegion.MiddleFinger,
+            _ when ContainsAny(normalized, "ring") => BoneRegion.RingFinger,
+            _ when ContainsAny(normalized, "pinky", "little") => BoneRegion.PinkyFinger,
             _ when ContainsAny(normalized, "thigh", "upleg", "upleftleg", "upleftthigh", "legupper") => BoneRegion.Thigh,
             _ when ContainsAny(normalized, "calf", "lowerleg", "leg", "knee") => BoneRegion.Calf,
             _ when ContainsAny(normalized, "foot", "ankle", "ball") => BoneRegion.Foot,
@@ -215,10 +211,10 @@ public enum BoneRegion
     Forearm,
     Hand,
     Thumb,
-    Index,
-    Middle,
-    Ring,
-    Pinky,
+    IndexFinger,
+    MiddleFinger,
+    RingFinger,
+    PinkyFinger,
     Thigh,
     Calf,
     Foot,

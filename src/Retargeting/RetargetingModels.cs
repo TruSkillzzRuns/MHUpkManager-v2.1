@@ -1,4 +1,5 @@
 ﻿using System.Numerics;
+using System.Reflection;
 using UpkManager.Models.UpkFile.Core;
 using UpkManager.Models.UpkFile.Engine.Anim;
 
@@ -15,6 +16,7 @@ public sealed class RetargetMesh
     public List<RetargetTextureReference> Textures { get; } = [];
     public Dictionary<string, RetargetBone> BonesByName { get; } = new(StringComparer.OrdinalIgnoreCase);
     public UAnimSet AnimSet { get; set; }
+    public VersionCompatibilityHints? VersionHints { get; set; }
 
     public int VertexCount => Sections.Sum(static section => section.Vertices.Count);
     public int TriangleCount => Sections.Sum(static section => section.Indices.Count / 3);
@@ -35,7 +37,12 @@ public sealed class RetargetMesh
             MeshName = MeshName,
             AppliedScale = AppliedScale,
             AppliedOrientation = AppliedOrientation,
-            AnimSet = AnimSet
+            VersionHints = VersionHints,
+            AnimSet = AnimSet is null
+                ? null
+                : (UAnimSet)(AnimSet.GetType()
+                    .GetMethod("MemberwiseClone", BindingFlags.Instance | BindingFlags.NonPublic)
+                    ?.Invoke(AnimSet, null) ?? AnimSet)
         };
 
         foreach (RetargetSection section in Sections)
@@ -145,7 +152,17 @@ public sealed class BoneMappingResult
     public List<string> UnmappedBones { get; } = [];
 }
 
+public sealed record VersionCompatibilityHints
+{
+    public int SourcePackageVersion { get; init; }
+    public int SourceLicenseeVersion { get; init; }
+    public string SourceVersionLabel { get; init; } = string.Empty;
+    public bool RequiresCoordinateSwap { get; init; } = true;
+}
+
 public readonly record struct RetargetWeight(string BoneName, float Weight);
 
 public readonly record struct RetargetTextureReference(string FilePath, string Name);
+
+
 

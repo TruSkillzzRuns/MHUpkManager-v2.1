@@ -9,6 +9,8 @@ public sealed class WorkflowsViewModel : INotifyPropertyChanged
     private string textures2Text = string.Empty;
     private string retargetText = string.Empty;
     private string materialEditorText = string.Empty;
+    private string upkMigrationText = string.Empty;
+    private string autoFixEngineText = string.Empty;
 
     public event PropertyChangedEventHandler? PropertyChanged;
 
@@ -36,6 +38,18 @@ public sealed class WorkflowsViewModel : INotifyPropertyChanged
         private set => SetField(ref materialEditorText, value);
     }
 
+    public string UpkMigrationText
+    {
+        get => upkMigrationText;
+        private set => SetField(ref upkMigrationText, value);
+    }
+
+    public string AutoFixEngineText
+    {
+        get => autoFixEngineText;
+        private set => SetField(ref autoFixEngineText, value);
+    }
+
     public WorkflowsViewModel()
     {
         string workflowRoot = Path.Combine(AppContext.BaseDirectory, "Modules", "Workflows", "WorkflowText");
@@ -43,6 +57,8 @@ public sealed class WorkflowsViewModel : INotifyPropertyChanged
         Textures2Text = LoadWorkflowText(Path.Combine(workflowRoot, "Textures2.txt"));
         RetargetText = LoadWorkflowText(Path.Combine(workflowRoot, "Retarget.txt"));
         MaterialEditorText = LoadWorkflowText(Path.Combine(workflowRoot, "MaterialEditor.txt"));
+        UpkMigrationText = LoadWorkflowText(Path.Combine(workflowRoot, "UpkMigration.txt"));
+        AutoFixEngineText = LoadWorkflowText(Path.Combine(workflowRoot, "AutoFixEngine.txt"));
     }
 
     private static string LoadWorkflowText(string path)

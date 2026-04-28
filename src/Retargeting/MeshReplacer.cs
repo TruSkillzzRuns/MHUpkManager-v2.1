@@ -63,6 +63,9 @@ public sealed class MeshReplacer
 
         string directory = Path.GetDirectoryName(upkPath) ?? Environment.CurrentDirectory;
         string tempOutputPath = Path.Combine(directory, Path.GetFileNameWithoutExtension(upkPath) + "_retarget_tmp.upk");
+        string pingPath = Path.Combine(directory, Path.GetFileNameWithoutExtension(upkPath) + "_retarget_ping.upk");
+        string pongPath = Path.Combine(directory, Path.GetFileNameWithoutExtension(upkPath) + "_retarget_pong.upk");
+        List<string> tempFiles = [tempOutputPath, pingPath, pongPath];
         string backupPath = null;
 
         try
@@ -74,28 +77,24 @@ public sealed class MeshReplacer
             }
             else
             {
-                string currentInput = upkPath;
-                string currentOutput = tempOutputPath;
-                List<string> tempOutputs = [];
+                string currentChainInput = upkPath;
+                string currentChainOutput = pingPath;
                 for (int currentLod = lodIndex; currentLod < context.SkeletalMesh.LODModels.Count; currentLod++)
                 {
                     (MeshImportContext currentContext, UE3LodModel currentLodModel, UnrealExportTableEntry currentExport) = await BuildReplacementLodWithExportAsync(
-                        currentInput,
+                        currentChainInput,
                         skeletalMeshExportPath,
                         retargetedMesh,
                         currentLod).ConfigureAwait(false);
-                    await injector.InjectAsync(currentInput, currentExport, currentContext, currentLodModel, currentOutput).ConfigureAwait(false);
+                    await injector.InjectAsync(currentChainInput, currentExport, currentContext, currentLodModel, currentChainOutput).ConfigureAwait(false);
 
-                    if (currentLod < context.SkeletalMesh.LODModels.Count - 1)
-                    {
-                        tempOutputs.Add(currentOutput);
-                        currentInput = currentOutput;
-                        currentOutput = Path.Combine(directory, $"{Path.GetFileNameWithoutExtension(tempOutputPath)}.lod{currentLod + 1}.tmp{Path.GetExtension(tempOutputPath)}");
-                    }
+                    string nextInput = currentChainOutput;
+                    currentChainOutput = currentChainInput == upkPath
+                        ? pongPath
+                        : (currentChainInput == pingPath ? pongPath : pingPath);
+                    currentChainInput = nextInput;
                 }
-
-                foreach (string path in tempOutputs.Where(path => !string.Equals(path, tempOutputPath, StringComparison.OrdinalIgnoreCase) && File.Exists(path)))
-                    File.Delete(path);
+                tempOutputPath = currentChainInput;
             }
 
             backupPath = BackupFileHelper.CreateBackup(upkPath);
@@ -106,8 +105,16 @@ public sealed class MeshReplacer
         }
         finally
         {
-            if (File.Exists(tempOutputPath))
-                File.Delete(tempOutputPath);
+            foreach (string temp in tempFiles.Where(File.Exists))
+            {
+                try
+                {
+                    File.Delete(temp);
+                }
+                catch
+                {
+                }
+            }
         }
     }
 

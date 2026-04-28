@@ -12,6 +12,16 @@ public sealed class UE3CompatibilityProcessor
         IReadOnlyDictionary<string, string> boneMapping,
         Action<string> log = null)
     {
+        return Process(mesh, playerSkeleton, boneMapping, reposeVertices: true, log);
+    }
+
+    public RetargetMesh Process(
+        RetargetMesh mesh,
+        SkeletonDefinition playerSkeleton,
+        IReadOnlyDictionary<string, string> boneMapping,
+        bool reposeVertices,
+        Action<string> log = null)
+    {
         if (mesh == null)
             throw new ArgumentNullException(nameof(mesh));
         if (playerSkeleton == null)
@@ -37,8 +47,8 @@ public sealed class UE3CompatibilityProcessor
                     ? sourceSection.Vertices[vertexIndex]
                     : vertex;
 
-                if (mesh.Bones.Count > 0 && boneMapping != null && boneMapping.Count > 0)
-                    ReposeVertexToTargetSkeleton(vertex, sourceVertex, mesh, playerSkeleton, boneMapping);
+                if (reposeVertices && mesh.Bones.Count > 0 && boneMapping != null && boneMapping.Count > 0)
+                    ReposeVertex(vertex, sourceVertex, mesh, playerSkeleton, boneMapping);
 
                 while (vertex.UVs.Count < 1)
                     vertex.UVs.Add(Vector2.Zero);
@@ -70,7 +80,20 @@ public sealed class UE3CompatibilityProcessor
         return compatible;
     }
 
-    private static void ReposeVertexToTargetSkeleton(
+    /// <summary>
+    /// Applies only structural UE3 compatibility changes (bone table collapse, UV clamp)
+    /// without performing bind-pose repose. Intended for use by the version converter pipeline.
+    /// </summary>
+    public RetargetMesh ProcessStructuralOnly(
+        RetargetMesh mesh,
+        SkeletonDefinition playerSkeleton,
+        IReadOnlyDictionary<string, string> boneMapping,
+        Action<string>? log = null)
+    {
+        return Process(mesh, playerSkeleton, boneMapping, reposeVertices: false, log);
+    }
+
+    public void ReposeVertex(
         RetargetVertex vertex,
         RetargetVertex sourceVertex,
         RetargetMesh sourceMesh,

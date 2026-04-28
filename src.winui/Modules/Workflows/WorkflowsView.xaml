@@ -22,6 +22,18 @@
 
         <TabView Grid.Row="1"
                  Margin="0,16,0,0">
+            <TabViewItem Header="UPK Migration">
+                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                    <TextBlock TextWrapping="Wrap"
+                               Text="{Binding UpkMigrationText}" />
+                </ScrollViewer>
+            </TabViewItem>
+            <TabViewItem Header="Auto-Fix Engine">
+                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                    <TextBlock TextWrapping="Wrap"
+                               Text="{Binding AutoFixEngineText}" />
+                </ScrollViewer>
+            </TabViewItem>
             <TabViewItem Header="Mesh Fusion Lab">
                 <ScrollViewer VerticalScrollBarVisibility="Auto">
                     <TextBlock TextWrapping="Wrap"

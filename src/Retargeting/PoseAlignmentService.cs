@@ -56,10 +56,26 @@ public sealed class PoseAlignmentService
         List<Matrix4x4> globals = aligned.Bones.Select(static bone => bone.GlobalTransform).ToList();
         List<PoseAdjustment> adjustments = [];
 
-        adjustments.AddRange(AlignChainToBasis(aligned, globals, FindBoneIndex(aligned.Bones, "g_pelvis", "pelvis", "hips"), sourceBasis.Up, targetBasis.Up, "Spine"));
-        adjustments.AddRange(AlignChainToBasis(aligned, globals, FindBoneIndex(aligned.Bones, "g_spine01", "spine01", "spine"), sourceBasis.Up, targetBasis.Up, "Spine"));
-        adjustments.AddRange(AlignArmToRelaxedPose(aligned, globals, FindBoneIndex(aligned.Bones, "g_l_shoulder", "leftshoulder", "l_clavical"), sourceBasis, targetBasis, true));
-        adjustments.AddRange(AlignArmToRelaxedPose(aligned, globals, FindBoneIndex(aligned.Bones, "g_r_shoulder", "rightshoulder", "r_clavical"), sourceBasis, targetBasis, false));
+        int pelvisIndex = FindBoneIndexByRegion(aligned.Bones, BoneRegion.Pelvis);
+        if (pelvisIndex < 0)
+            pelvisIndex = FindBoneIndex(aligned.Bones, "g_pelvis", "pelvis", "hips");
+
+        int spineIndex = FindBoneIndexByRegion(aligned.Bones, BoneRegion.Spine);
+        if (spineIndex < 0)
+            spineIndex = FindBoneIndex(aligned.Bones, "g_spine01", "spine01", "spine");
+
+        int leftShoulderIndex = FindBoneIndexByRegion(aligned.Bones, BoneRegion.Shoulder, BoneSide.Left);
+        if (leftShoulderIndex < 0)
+            leftShoulderIndex = FindBoneIndex(aligned.Bones, "g_l_shoulder", "leftshoulder", "l_clavical");
+
+        int rightShoulderIndex = FindBoneIndexByRegion(aligned.Bones, BoneRegion.Shoulder, BoneSide.Right);
+        if (rightShoulderIndex < 0)
+            rightShoulderIndex = FindBoneIndex(aligned.Bones, "g_r_shoulder", "rightshoulder", "r_clavical");
+
+        adjustments.AddRange(AlignChainToBasis(aligned, globals, pelvisIndex, sourceBasis.Up, targetBasis.Up, "Spine"));
+        adjustments.AddRange(AlignChainToBasis(aligned, globals, spineIndex, sourceBasis.Up, targetBasis.Up, "Spine"));
+        adjustments.AddRange(AlignArmToRelaxedPose(aligned, globals, leftShoulderIndex, sourceBasis, targetBasis, true));
+        adjustments.AddRange(AlignArmToRelaxedPose(aligned, globals, rightShoulderIndex, sourceBasis, targetBasis, false));
         adjustments.AddRange(ZeroTwistBones(aligned, globals));
 
         for (int i = 0; i < aligned.Bones.Count; i++)
@@ -187,9 +203,16 @@ public sealed class PoseAlignmentService
     private static void AddSpineAdjustments(RetargetMesh mesh, PoseBasis sourceBasis, PoseBasis targetBasis, List<PoseAdjustment> adjustments)
     {
         int spineCount = 0;
-        foreach (string alias in new[] { "g_pelvis", "pelvis", "hips", "g_spine01", "g_spine02", "g_chest", "g_neck" })
+        int pelvisIndex = FindBoneIndexByRegion(mesh.Bones, BoneRegion.Pelvis);
+        if (pelvisIndex < 0)
+            pelvisIndex = FindBoneIndex(mesh.Bones, "g_pelvis", "pelvis", "hips");
+
+        int spineIndex = FindBoneIndexByRegion(mesh.Bones, BoneRegion.Spine);
+        if (spineIndex < 0)
+            spineIndex = FindBoneIndex(mesh.Bones, "g_spine01", "spine01", "spine");
+
+        foreach (int index in new[] { pelvisIndex, spineIndex })
         {
-            int index = FindBoneIndex(mesh.Bones, alias);
             if (index < 0)
                 continue;
 
@@ -218,8 +241,12 @@ public sealed class PoseAlignmentService
 
     private static void AddArmAdjustments(RetargetMesh mesh, PoseBasis sourceBasis, PoseBasis targetBasis, List<PoseAdjustment> adjustments)
     {
-        int left = FindBoneIndex(mesh.Bones, "g_l_shoulder", "leftshoulder", "g_l_clavical", "l_clavical");
-        int right = FindBoneIndex(mesh.Bones, "g_r_shoulder", "rightshoulder", "g_r_clavical", "r_clavical");
+        int left = FindBoneIndexByRegion(mesh.Bones, BoneRegion.Shoulder, BoneSide.Left);
+        if (left < 0)
+            left = FindBoneIndex(mesh.Bones, "g_l_shoulder", "leftshoulder", "g_l_clavical", "l_clavical");
+        int right = FindBoneIndexByRegion(mesh.Bones, BoneRegion.Shoulder, BoneSide.Right);
+        if (right < 0)
+            right = FindBoneIndex(mesh.Bones, "g_r_shoulder", "rightshoulder", "g_r_clavical", "r_clavical");
         if (left >= 0)
         {
             Vector3 current = GetChildDirection(mesh.Bones, mesh.Bones.Select(static bone => bone.GlobalTransform).ToList(), left);
@@ -319,12 +346,42 @@ public sealed class PoseAlignmentService
         return -1;
     }
 
+    private static int FindBoneIndexByRegion(IReadOnlyList<RetargetBone> bones, BoneRegion region, BoneSide side = BoneSide.Unknown)
+    {
+        for (int i = 0; i < bones.Count; i++)
+        {
+            if (BoneNameHeuristics.IsHelperBone(bones[i].Name))
+                continue;
+
+            BoneRegion boneRegion = BoneNameHeuristics.GetRegion(bones[i].Name);
+            if (boneRegion != region)
+                continue;
+
+            if (side != BoneSide.Unknown)
+            {
+                BoneSide boneSide = BoneNameHeuristics.GetSide(bones[i].Name);
+                if (boneSide != side)
+                    continue;
+            }
+
+            return i;
+        }
+
+        return -1;
+    }
+
     private static PoseBasis BuildBasis(IReadOnlyList<RetargetBone> bones)
     {
-        int pelvisIndex = FindBoneIndex(bones, "g_pelvis", "pelvis", "hips");
+        int pelvisIndex = FindBoneIndexByRegion(bones, BoneRegion.Pelvis);
+        if (pelvisIndex < 0)
+            pelvisIndex = FindBoneIndex(bones, "g_pelvis", "pelvis", "hips");
         int headIndex = FindBoneIndex(bones, "g_head", "head");
-        int leftShoulderIndex = FindBoneIndex(bones, "g_l_shoulder", "leftshoulder", "g_l_clavical", "l_clavical");
-        int rightShoulderIndex = FindBoneIndex(bones, "g_r_shoulder", "rightshoulder", "g_r_clavical", "r_clavical");
+        int leftShoulderIndex = FindBoneIndexByRegion(bones, BoneRegion.Shoulder, BoneSide.Left);
+        if (leftShoulderIndex < 0)
+            leftShoulderIndex = FindBoneIndex(bones, "g_l_shoulder", "leftshoulder", "g_l_clavical", "l_clavical");
+        int rightShoulderIndex = FindBoneIndexByRegion(bones, BoneRegion.Shoulder, BoneSide.Right);
+        if (rightShoulderIndex < 0)
+            rightShoulderIndex = FindBoneIndex(bones, "g_r_shoulder", "rightshoulder", "g_r_clavical", "r_clavical");
 
         Vector3 pelvis = pelvisIndex >= 0 ? bones[pelvisIndex].GlobalTransform.Translation : Vector3.Zero;
         Vector3 head = headIndex >= 0 ? bones[headIndex].GlobalTransform.Translation : Vector3.UnitY;

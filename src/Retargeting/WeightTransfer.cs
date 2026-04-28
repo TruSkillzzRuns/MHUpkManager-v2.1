@@ -28,11 +28,18 @@ public sealed class WeightTransfer
                     if (sourceWeight.Weight <= 0.0f)
                         continue;
 
-                    string mappedBone = boneMapping.TryGetValue(sourceWeight.BoneName, out string mapped)
-                        ? mapped
-                        : playerSkeleton.Bones.First().Name;
-
+                    if (!boneMapping.TryGetValue(sourceWeight.BoneName, out string mappedBone))
+                    {
+                        log?.Invoke($"WeightTransfer: source bone '{sourceWeight.BoneName}' has no mapping - influence dropped.");
+                        continue;
+                    }
                     reassigned.Add(new RetargetWeight(mappedBone, sourceWeight.Weight));
+                }
+
+                if (reassigned.Count == 0)
+                {
+                    log?.Invoke("WeightTransfer: vertex had no mappable influences - binding to root bone as fallback.");
+                    reassigned.Add(new RetargetWeight(playerSkeleton.Bones[0].Name, 1.0f));
                 }
 
                 vertex.Weights.Clear();

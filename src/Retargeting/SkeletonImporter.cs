@@ -8,6 +8,11 @@ public sealed class SkeletonImporter
 {
     public SkeletonDefinition Import(string fbxPath, Action<string> log = null)
     {
+        return Import(fbxPath, true, log);
+    }
+
+    public SkeletonDefinition Import(string fbxPath, bool applyUe3CoordinateSwap = true, Action<string>? log = null)
+    {
         if (string.IsNullOrWhiteSpace(fbxPath))
             throw new ArgumentException("Skeleton path is required.", nameof(fbxPath));
 
@@ -29,13 +34,13 @@ public sealed class SkeletonImporter
         };
 
         HashSet<string> meshBoneNames = CollectBoneNames(scene);
-        AddBonesRecursive(scene.RootNode, -1, NumericsMatrix4x4.Identity, meshBoneNames, skeleton);
+        AddBonesRecursive(scene.RootNode, -1, NumericsMatrix4x4.Identity, meshBoneNames, skeleton, applyUe3CoordinateSwap);
         skeleton.RebuildBoneLookup();
 
         if (skeleton.Bones.Count == 0)
             throw new InvalidOperationException("The selected FBX did not expose a usable bone hierarchy.");
 
-        log?.Invoke($"Imported player skeleton with {skeleton.Bones.Count} bones from {fbxPath}.");
+        log?.Invoke($"Imported player skeleton with {skeleton.Bones.Count} bones from {fbxPath} (coordinateSwap={applyUe3CoordinateSwap}).");
         return skeleton;
     }
 
@@ -56,7 +61,8 @@ public sealed class SkeletonImporter
         int parentIndex,
         NumericsMatrix4x4 parentTransform,
         HashSet<string> meshBoneNames,
-        SkeletonDefinition skeleton)
+        SkeletonDefinition skeleton,
+        bool applyUe3CoordinateSwap)
     {
         bool keepNode = meshBoneNames.Count == 0 ||
             meshBoneNames.Contains(node.Name) ||
@@ -73,13 +79,13 @@ public sealed class SkeletonImporter
             {
                 Name = node.Name,
                 ParentIndex = parentIndex,
-                LocalTransform = ConvertTransform(local),
-                GlobalTransform = ConvertTransform(global)
+                LocalTransform = applyUe3CoordinateSwap ? ConvertTransform(local) : local,
+                GlobalTransform = applyUe3CoordinateSwap ? ConvertTransform(global) : global
             });
         }
 
         foreach (Node child in node.Children)
-            AddBonesRecursive(child, currentIndex, global, meshBoneNames, skeleton);
+            AddBonesRecursive(child, currentIndex, global, meshBoneNames, skeleton, applyUe3CoordinateSwap);
     }
 
     private static bool ContainsTrackedDescendant(Node node, HashSet<string> names)

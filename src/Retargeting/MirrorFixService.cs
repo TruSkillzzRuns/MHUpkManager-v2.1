@@ -149,14 +149,26 @@ public sealed class MirrorFixService
 
     private static float GetAverageSide(RetargetMesh mesh, string? boneName, bool includeLeft)
     {
-        if (string.IsNullOrWhiteSpace(boneName))
-            return 0.0f;
+        List<float> xValues = [];
+        foreach (RetargetBone bone in mesh.Bones)
+        {
+            if (string.IsNullOrWhiteSpace(bone.Name))
+                continue;
 
-        RetargetBone? bone = mesh.Bones.FirstOrDefault(candidate => candidate.Name.Equals(boneName, StringComparison.OrdinalIgnoreCase));
-        if (bone is null)
-            return 0.0f;
+            bool isLeft = bone.Name.Contains("left", StringComparison.OrdinalIgnoreCase) ||
+                          bone.Name.Contains("_l_", StringComparison.OrdinalIgnoreCase) ||
+                          bone.Name.EndsWith("_l", StringComparison.OrdinalIgnoreCase);
+            bool isRight = bone.Name.Contains("right", StringComparison.OrdinalIgnoreCase) ||
+                           bone.Name.Contains("_r_", StringComparison.OrdinalIgnoreCase) ||
+                           bone.Name.EndsWith("_r", StringComparison.OrdinalIgnoreCase);
 
-        return bone.GlobalTransform.Translation.X;
+            if (includeLeft && isLeft)
+                xValues.Add(bone.GlobalTransform.Translation.X);
+            else if (!includeLeft && isRight)
+                xValues.Add(bone.GlobalTransform.Translation.X);
+        }
+
+        return xValues.Count == 0 ? 0.0f : xValues.Average();
     }
 }
 
