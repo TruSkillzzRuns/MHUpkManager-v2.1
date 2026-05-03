@@ -29,7 +29,7 @@ public sealed partial class UpkMigrationViewModel : INotifyPropertyChanged
         Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory),
         "OmegaAssetStudio_UpkMigration_ResourceScanner");
     private string statusText = "Ready.";
-    private string progressText = "Select one or more 1.48 UPKs to begin.";
+    private string progressText = "Ready. Select UPKs for migration, or use Thanos texture injection.";
     private double overallProgress;
     private string resultsSummaryText = "No migration has run yet.";
     private string resourcePrototypeStatusText = "Ready.";
@@ -37,6 +37,9 @@ public sealed partial class UpkMigrationViewModel : INotifyPropertyChanged
     private string selectedJobDetails = "No job selected.";
     private string logFilter = string.Empty;
     private string textureManifestDirectory = string.Empty;
+    private string textureSourceDirectory148 = string.Empty;
+    private double textureInjectProgress;
+    private string textureInjectProgressText = "Injection progress: 0%";
     private MigrationMode currentMode = MigrationMode.Standard;
     private ThanosMigrationReport? thanosReport;
     private MigrationJob? selectedJob;
@@ -46,6 +49,7 @@ public sealed partial class UpkMigrationViewModel : INotifyPropertyChanged
     private bool isResourcePrototypeScanning;
     private readonly ThanosStructuralMigrationService thanosStructuralService;
     private readonly ThanosTextureMigrationService thanosTextureService;
+    private readonly ThanosTextureCacheInjectorService thanosTextureCacheInjectorService;
     private readonly TfcManifestService tfcManifestService;
     private readonly ThanosPrototypeMergerViewModel prototypeMerger;
 
@@ -65,6 +69,8 @@ public sealed partial class UpkMigrationViewModel : INotifyPropertyChanged
 
     public Func<Task<string?>>? BrowseTextureManifestDirectoryRequestedAsync { get; set; }
 
+    public Func<Task<string?>>? BrowseTextureSourceDirectoryRequestedAsync { get; set; }
+
     public Func<Task<string?>>? BrowseResourcePrototypeSourceRequestedAsync { get; set; }
 
     public Func<Task<string?>>? BrowseResourcePrototypeOutputRequestedAsync { get; set; }
@@ -77,11 +83,19 @@ public sealed partial class UpkMigrationViewModel : INotifyPropertyChanged
 
     public ICommand BrowseTextureManifestDirectoryCommand { get; }
 
+    public ICommand BrowseTextureSourceDirectoryCommand { get; }
+
     public ICommand AnalyzeThanosCommand { get; }
 
     public ICommand MigrateThanosCommand { get; }
 
     public ICommand UpdateTextureManifestCommand { get; }
+
+    public ICommand InjectTextureCachePayloadsCommand { get; }
+
+    public ICommand RunKnowhereProfileCommand { get; }
+
+    public ICommand RollbackTextureCacheCommand { get; }
 
     public ICommand BrowseResourcePrototypeSourceCommand { get; }
 
@@ -175,6 +189,32 @@ public sealed partial class UpkMigrationViewModel : INotifyPropertyChanged
             if (SetField(ref textureManifestDirectory, value))
                 UpdateStatus($"Texture manifest folder set to {textureManifestDirectory}.");
         }
+    }
+
+    public string TextureSourceDirectory148
+    {
+        get => textureSourceDirectory148;
+        set
+        {
+            if (SetField(ref textureSourceDirectory148, value))
+            {
+                config.ThanosTextureSourceRoot148 = textureSourceDirectory148;
+                UpkMigrationConfigStore.Save(config);
+                UpdateStatus($"1.48 texture source folder set to {textureSourceDirectory148}.");
+            }
+        }
+    }
+
+    public double TextureInjectProgress
+    {
+        get => textureInjectProgress;
+        private set => SetField(ref textureInjectProgress, value);
+    }
+
+    public string TextureInjectProgressText
+    {
+        get => textureInjectProgressText;
+        private set => SetField(ref textureInjectProgressText, value);
     }
 
     public string StatusText
@@ -278,6 +318,7 @@ public sealed partial class UpkMigrationViewModel : INotifyPropertyChanged
         UpkMigrationService service,
         ThanosStructuralMigrationService thanosStructuralService,
         ThanosTextureMigrationService thanosTextureService,
+        ThanosTextureCacheInjectorService thanosTextureCacheInjectorService,
         TfcManifestService tfcManifestService,
         DispatcherQueue? dispatcherQueue = null)
     {
@@ -285,6 +326,7 @@ public sealed partial class UpkMigrationViewModel : INotifyPropertyChanged
         this.service = service;
         this.thanosStructuralService = thanosStructuralService;
         this.thanosTextureService = thanosTextureService;
+        this.thanosTextureCacheInjectorService = thanosTextureCacheInjectorService;
         this.tfcManifestService = tfcManifestService;
         config = UpkMigrationConfigStore.Load();
         if (string.IsNullOrWhiteSpace(config.LogPath))
@@ -298,6 +340,10 @@ public sealed partial class UpkMigrationViewModel : INotifyPropertyChanged
             resourcePrototypeSourcePath = config.SipPath152;
         if (!string.IsNullOrWhiteSpace(config.ResourcePrototypeOutputRoot))
             resourcePrototypeOutputDirectory = config.ResourcePrototypeOutputRoot;
+        if (!string.IsNullOrWhiteSpace(config.ThanosTextureSourceRoot148))
+            textureSourceDirectory148 = config.ThanosTextureSourceRoot148;
+        else if (!string.IsNullOrWhiteSpace(config.GameRoot148))
+            textureSourceDirectory148 = config.GameRoot148;
 
         prototypeMerger = new ThanosPrototypeMergerViewModel(
             new ThanosPrototypeDiscoveryService(),
@@ -312,12 +358,16 @@ public sealed partial class UpkMigrationViewModel : INotifyPropertyChanged
         StartMigrationCommand = new AsyncRelayCommand(StartMigrationAsync);
         BrowseOutputDirectoryCommand = new AsyncRelayCommand(BrowseOutputDirectoryAsync);
         BrowseTextureManifestDirectoryCommand = new AsyncRelayCommand(BrowseTextureManifestDirectoryAsync);
+        BrowseTextureSourceDirectoryCommand = new AsyncRelayCommand(BrowseTextureSourceDirectoryAsync);
         BrowseResourcePrototypeSourceCommand = new AsyncRelayCommand(BrowseResourcePrototypeSourceAsync);
         BrowseResourcePrototypeOutputCommand = new AsyncRelayCommand(BrowseResourcePrototypeOutputAsync);
         ScanResourcePrototypesCommand = new AsyncRelayCommand(ScanResourcePrototypesAsync);
         AnalyzeThanosCommand = new AsyncRelayCommand(AnalyzeThanosAsync);
         MigrateThanosCommand = new AsyncRelayCommand(MigrateThanosAsync);
         UpdateTextureManifestCommand = new AsyncRelayCommand(UpdateTextureManifestAsync);
+        InjectTextureCachePayloadsCommand = new AsyncRelayCommand(InjectTextureCachePayloadsAsync);
+        RunKnowhereProfileCommand = new AsyncRelayCommand(RunKnowhereProfileAsync);
+        RollbackTextureCacheCommand = new AsyncRelayCommand(RollbackTextureCacheAsync);
 
         InitializeToolingState();
         UpdateStatus("Ready.");
@@ -421,6 +471,16 @@ public sealed partial class UpkMigrationViewModel : INotifyPropertyChanged
         string? folder = await BrowseTextureManifestDirectoryRequestedAsync();
         if (!string.IsNullOrWhiteSpace(folder))
             TextureManifestDirectory = folder;
+    }
+
+    public async Task BrowseTextureSourceDirectoryAsync()
+    {
+        if (BrowseTextureSourceDirectoryRequestedAsync is null)
+            return;
+
+        string? folder = await BrowseTextureSourceDirectoryRequestedAsync();
+        if (!string.IsNullOrWhiteSpace(folder))
+            TextureSourceDirectory148 = folder;
     }
 
     public async Task AnalyzeThanosAsync()
@@ -558,22 +618,7 @@ public sealed partial class UpkMigrationViewModel : INotifyPropertyChanged
             return Task.CompletedTask;
 
         if (!IsThanosMode)
-        {
-            UpdateStatus("Switch to Thanos Raid mode before updating the texture manifest.");
-            return Task.CompletedTask;
-        }
-
-        if (Jobs.Count == 0)
-        {
-            UpdateStatus("Load one or more Thanos UPKs before updating the texture manifest.");
-            return Task.CompletedTask;
-        }
-
-        if (string.IsNullOrWhiteSpace(OutputDirectory))
-        {
-            UpdateStatus("Set the migration output directory first.");
-            return Task.CompletedTask;
-        }
+            CurrentMode = MigrationMode.ThanosRaid;
 
         if (string.IsNullOrWhiteSpace(TextureManifestDirectory))
         {
@@ -581,10 +626,22 @@ public sealed partial class UpkMigrationViewModel : INotifyPropertyChanged
             return Task.CompletedTask;
         }
 
-        string sourceManifestPath = Path.Combine(Path.GetFullPath(OutputDirectory), TextureManifest.ManifestName);
+        string sourceManifestPath = string.Empty;
+        if (!string.IsNullOrWhiteSpace(OutputDirectory))
+            sourceManifestPath = Path.Combine(Path.GetFullPath(OutputDirectory), TextureManifest.ManifestName);
+
+        bool hasOutputManifest = !string.IsNullOrWhiteSpace(sourceManifestPath) && File.Exists(sourceManifestPath);
+        if (!hasOutputManifest && !string.IsNullOrWhiteSpace(TextureSourceDirectory148))
+        {
+            string sourceRoot148 = Path.GetFullPath(TextureSourceDirectory148);
+            string fallbackManifestPath = Path.Combine(sourceRoot148, TextureManifest.ManifestName);
+            if (File.Exists(fallbackManifestPath))
+                sourceManifestPath = fallbackManifestPath;
+        }
+
         if (!File.Exists(sourceManifestPath))
         {
-            UpdateStatus("Run Batch Migrate first so the migrated texture manifest exists in the output folder.");
+            UpdateStatus("No source texture manifest found. Set either the migration output folder or the 1.48 texture source folder.");
             return Task.CompletedTask;
         }
 
@@ -623,6 +680,224 @@ public sealed partial class UpkMigrationViewModel : INotifyPropertyChanged
         }
 
         return Task.CompletedTask;
+    }
+
+    public async Task InjectTextureCachePayloadsAsync()
+    {
+        const string injectionStepName = "TFC Injection";
+        const string injectionStepDescription = "Run Knowhere profile: preflight, inject, verify, and transactional swap.";
+
+        if (IsBusy || IsThanosBusy)
+        {
+            UpdateStatus("Injection is blocked while another migration task is running.");
+            TextureInjectProgressText = "Injection progress: 0% - Blocked (tool is busy)";
+            return;
+        }
+
+        if (!IsThanosMode)
+            CurrentMode = MigrationMode.ThanosRaid;
+
+        if (string.IsNullOrWhiteSpace(TextureSourceDirectory148))
+        {
+            UpdateStatus("Select the 1.48 source folder that contains CharTextures.tfc, Textures.tfc, and TextureFileCacheManifest.bin.");
+            TextureInjectProgressText = "Injection progress: 0% - Missing 1.48 source folder";
+            return;
+        }
+
+        if (string.IsNullOrWhiteSpace(TextureManifestDirectory))
+        {
+            UpdateStatus("Select the 1.52 client folder that contains CharTextures.tfc, Textures.tfc, and TextureFileCacheManifest.bin.");
+            TextureInjectProgressText = "Injection progress: 0% - Missing 1.52 target folder";
+            return;
+        }
+
+        IsThanosBusy = true;
+        try
+        {
+            await InvokeOnUiAsync(() =>
+            {
+                ThanosSteps.Clear();
+                ThanosSteps.Add(new ThanosMigrationStep
+                {
+                    Name = injectionStepName,
+                    Description = injectionStepDescription,
+                    Status = ThanosMigrationStepStatus.Pending,
+                    Reason = "Starting..."
+                });
+                TextureInjectProgress = 0;
+                TextureInjectProgressText = "Injection progress: 0% - Starting";
+                UpdateStatus("Starting TFC payload injection...");
+            }).ConfigureAwait(false);
+
+            string sourceRoot = ResolveCookedPcConsoleRoot(TextureSourceDirectory148);
+            string targetRoot = ResolveCookedPcConsoleRoot(TextureManifestDirectory);
+            string sourceManifestPath = Path.Combine(sourceRoot, "TextureFileCacheManifest.bin");
+            string targetManifestPath = Path.Combine(targetRoot, "TextureFileCacheManifest.bin");
+            AddServiceLog("Info", $"Resolved 1.48 texture source folder: {sourceRoot}");
+            AddServiceLog("Info", $"Resolved 1.52 texture target folder: {targetRoot}");
+            if (!File.Exists(sourceManifestPath))
+            {
+                UpdateStatus($"Source manifest missing: {sourceManifestPath}");
+                TextureInjectProgressText = "Injection progress: 0% - Source manifest missing";
+                if (ThanosSteps.Count > 0)
+                {
+                    ThanosSteps[0] = new ThanosMigrationStep
+                    {
+                        Name = injectionStepName,
+                        Description = injectionStepDescription,
+                        Status = ThanosMigrationStepStatus.Failed,
+                        Reason = $"Source manifest missing: {sourceManifestPath}"
+                    };
+                }
+                return;
+            }
+
+            if (!File.Exists(targetManifestPath))
+            {
+                UpdateStatus($"Target manifest missing: {targetManifestPath}");
+                TextureInjectProgressText = "Injection progress: 0% - Target manifest missing";
+                if (ThanosSteps.Count > 0)
+                {
+                    ThanosSteps[0] = new ThanosMigrationStep
+                    {
+                        Name = injectionStepName,
+                        Description = injectionStepDescription,
+                        Status = ThanosMigrationStepStatus.Failed,
+                        Reason = $"Target manifest missing: {targetManifestPath}"
+                    };
+                }
+                return;
+            }
+
+            ThanosTextureCacheInjectionResult result = await Task.Run(() =>
+                thanosTextureCacheInjectorService.InjectMissingEntries(
+                    sourceRoot,
+                    targetRoot,
+                    (percent, message) => PostToUi(() =>
+                    {
+                        double clamped = Math.Clamp(percent, 0, 100);
+                        TextureInjectProgress = clamped;
+                        TextureInjectProgressText = $"Injection progress: {clamped:0}% - {message}";
+                        if (ThanosSteps.Count > 0)
+                        {
+                            ThanosSteps[0] = new ThanosMigrationStep
+                            {
+                                Name = injectionStepName,
+                                Description = injectionStepDescription,
+                                Status = clamped >= 100 ? ThanosMigrationStepStatus.Done : ThanosMigrationStepStatus.Pending,
+                                Reason = message
+                            };
+                        }
+                    }),
+                    message => PostToUi(() => UpdateStatus(message)))).ConfigureAwait(true);
+
+            if (result.Warnings.Count > 0)
+            {
+                foreach (string warning in result.Warnings)
+                    AddServiceLog("Warning", warning);
+            }
+
+            foreach (string backup in result.BackupPaths)
+                AddServiceLog("Info", $"Backup: {backup}");
+
+            foreach (string tfcPath in result.TouchedTargetTfcFiles)
+                AddServiceLog("Info", $"Injected target cache: {tfcPath}");
+
+            UpdateStatus(
+                $"Knowhere profile complete. Preflight={result.PreflightPassed}, SourceChunks={result.PreflightSourceChunks:N0}, " +
+                $"TargetChunks={result.PreflightTargetChunks:N0}, Matched={result.SourceMatchedEntries:N0}, AddedTextures={result.AddedTextureEntries:N0}, " +
+                $"PatchedTextures={result.PatchedTextureEntries:N0}, ReplacedInvalid={result.ReplacedInvalidChunks:N0}, AddedChunks={result.AddedChunks:N0}, " +
+                $"Verified={result.VerifiedChunks:N0}, VerifyFailures={result.VerificationFailures:N0}, " +
+                $"ManifestEntries={result.TargetEntriesBefore:N0}->{result.TargetEntriesAfter:N0}.");
+            TextureInjectProgress = 100;
+            TextureInjectProgressText = "Injection progress: 100% - Complete";
+            if (ThanosSteps.Count > 0)
+            {
+                ThanosSteps[0] = new ThanosMigrationStep
+                {
+                    Name = injectionStepName,
+                    Description = injectionStepDescription,
+                    Status = ThanosMigrationStepStatus.Done,
+                    Reason = "Complete."
+                };
+            }
+        }
+        catch (Exception ex)
+        {
+            string detail = ex.Message;
+            if (ex.InnerException is not null && !string.IsNullOrWhiteSpace(ex.InnerException.Message))
+                detail = $"{detail} | Inner: {ex.InnerException.Message}";
+
+            AddServiceLog("Error", ex.ToString());
+            UpdateStatus($"TFC inject failed: {detail}");
+            TextureInjectProgressText = $"Injection progress: {TextureInjectProgress:0}% - Failed: {detail}";
+            if (ThanosSteps.Count > 0)
+            {
+                ThanosSteps[0] = new ThanosMigrationStep
+                {
+                    Name = injectionStepName,
+                    Description = injectionStepDescription,
+                    Status = ThanosMigrationStepStatus.Failed,
+                    Reason = detail,
+                    Exception = ex
+                };
+            }
+        }
+        finally
+        {
+            IsThanosBusy = false;
+        }
+    }
+
+    public Task RunKnowhereProfileAsync()
+        => InjectTextureCachePayloadsAsync();
+
+    public async Task RollbackTextureCacheAsync()
+    {
+        if (IsBusy || IsThanosBusy)
+        {
+            UpdateStatus("Rollback is blocked while another migration task is running.");
+            return;
+        }
+
+        if (string.IsNullOrWhiteSpace(TextureManifestDirectory))
+        {
+            UpdateStatus("Select the 1.52 client folder before running rollback.");
+            return;
+        }
+
+        IsThanosBusy = true;
+        try
+        {
+            string targetRoot = ResolveCookedPcConsoleRoot(TextureManifestDirectory);
+            AddServiceLog("Info", $"Rollback target folder: {targetRoot}");
+
+            ThanosTextureCacheRollbackResult result = await Task.Run(() =>
+                thanosTextureCacheInjectorService.RollbackLatestBackup(targetRoot)).ConfigureAwait(true);
+
+            if (!result.Restored)
+            {
+                UpdateStatus("Rollback skipped: no matching backup set found.");
+                return;
+            }
+
+            foreach (string restoredPath in result.RestoredPaths)
+                AddServiceLog("Info", $"Restored: {restoredPath}");
+
+            foreach (string missingPath in result.MissingBackupPaths)
+                AddServiceLog("Warning", $"Missing backup: {missingPath}");
+
+            UpdateStatus($"Rollback complete. Timestamp={result.Timestamp}, Restored={result.RestoredPaths.Count:N0} file(s).");
+        }
+        catch (Exception ex)
+        {
+            AddServiceLog("Error", ex.ToString());
+            UpdateStatus($"Rollback failed: {ex.Message}");
+        }
+        finally
+        {
+            IsThanosBusy = false;
+        }
     }
 
     public async Task ScanResourcePrototypesAsync()
@@ -891,6 +1166,31 @@ public sealed partial class UpkMigrationViewModel : INotifyPropertyChanged
     private void UpdateResourcePrototypeStatus(string message)
     {
         ResourcePrototypeStatusText = message;
+    }
+
+    private void AddServiceLog(string level, string message)
+    {
+        MigrationLogEntry entry = new()
+        {
+            Timestamp = DateTime.Now.ToString("HH:mm:ss"),
+            Level = level,
+            Message = message
+        };
+        LogEntries.Add(entry);
+    }
+
+    private static string ResolveCookedPcConsoleRoot(string selectedPath)
+    {
+        string full = Path.GetFullPath(selectedPath);
+        string manifest = Path.Combine(full, "TextureFileCacheManifest.bin");
+        if (File.Exists(manifest))
+            return full;
+
+        string candidate = Path.Combine(full, "UnrealEngine3", "MarvelGame", "CookedPCConsole");
+        if (File.Exists(Path.Combine(candidate, "TextureFileCacheManifest.bin")))
+            return candidate;
+
+        return full;
     }
 
     private void PostToUi(Action action)

@@ -48,9 +48,21 @@ public sealed class TfcManifestService
     {
         Dictionary<string, ThanosTfcEntry> merged = new(StringComparer.OrdinalIgnoreCase);
 
-        foreach (ThanosTfcEntry entry in existing.Concat(newEntries))
-        {
+        foreach (ThanosTfcEntry entry in existing)
             merged[BuildKey(entry)] = entry;
+
+        foreach (ThanosTfcEntry entry in newEntries)
+        {
+            string key = BuildKey(entry);
+            if (!merged.TryGetValue(key, out ThanosTfcEntry? current))
+            {
+                merged[key] = entry;
+                continue;
+            }
+
+            // Preserve an already-valid target entry. Only replace when existing is clearly invalid.
+            if (IsInvalidEntry(current) && !IsInvalidEntry(entry))
+                merged[key] = entry;
         }
 
         return merged.Values
@@ -60,6 +72,9 @@ public sealed class TfcManifestService
             .ThenBy(static entry => entry.ChunkIndex)
             .ToList();
     }
+
+    private static bool IsInvalidEntry(ThanosTfcEntry entry)
+        => entry.Size <= 0 || entry.Offset < 0 || entry.Offset == uint.MaxValue;
 
     public void SaveManifest(string manifestPath, List<ThanosTfcEntry> entries)
     {

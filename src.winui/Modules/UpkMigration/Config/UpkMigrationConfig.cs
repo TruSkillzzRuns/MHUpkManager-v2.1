@@ -18,6 +18,8 @@ public sealed class UpkMigrationConfig
 
     public string ResourcePrototypeOutputRoot { get; set; } = string.Empty;
 
+    public string ThanosTextureSourceRoot148 { get; set; } = string.Empty;
+
     public string BackportSourceRoot { get; set; } = string.Empty;
 
     public string BackportServerEmuRoot { get; set; } = string.Empty;

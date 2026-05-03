@@ -60,9 +60,12 @@
     <Compile Include="..\src.core\ThanosMigration\Models\ThanosDiscoveryProgress.cs" />
     <Compile Include="..\src.core\ThanosMigration\Models\ThanosPrototypeSource.cs" />
     <Compile Include="..\src.core\ThanosMigration\Models\ThanosPrototypeMergePlan.cs" />
+    <Compile Include="..\src.core\ThanosMigration\Models\ThanosTextureCacheInjectionResult.cs" />
+    <Compile Include="..\src.core\ThanosMigration\Models\ThanosTextureCacheRollbackResult.cs" />
     <Compile Include="..\src.core\ThanosMigration\Upk\ThanosUpkVersionConstants.cs" />
     <Compile Include="..\src.core\ThanosMigration\Services\ThanosStructuralMigrationService.cs" />
     <Compile Include="..\src.core\ThanosMigration\Services\ThanosTextureMigrationService.cs" />
+    <Compile Include="..\src.core\ThanosMigration\Services\ThanosTextureCacheInjectorService.cs" />
     <Compile Include="..\src.core\ThanosMigration\Services\TfcManifestService.cs" />
     <Compile Include="..\src.core\ThanosMigration\Services\ThanosDependencyScannerService.cs" />
     <Compile Include="..\src.core\ThanosMigration\Services\ThanosPrototypeDiscoveryService.cs" />

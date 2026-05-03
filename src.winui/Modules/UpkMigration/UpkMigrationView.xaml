@@ -1,4 +1,4 @@
-﻿<Page
+<Page
     x:Class="OmegaAssetStudio.WinUI.Modules.UpkMigration.UpkMigrationView"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -294,7 +294,21 @@
                                          PlaceholderText="Select the 1.52 client folder that contains TextureFileCacheManifest.bin." />
 
                                 <Button Content="Browse Manifest Folder..." Command="{Binding BrowseTextureManifestDirectoryCommand}" />
+
+                                <TextBox Header="1.48 texture source folder"
+                                         Text="{Binding TextureSourceDirectory148, Mode=TwoWay}"
+                                         PlaceholderText="Select the 1.48 client folder that contains CharTextures.tfc, Textures.tfc, and TextureFileCacheManifest.bin." />
+
+                                <Button Content="Browse 1.48 Texture Folder..." Command="{Binding BrowseTextureSourceDirectoryCommand}" />
                                 <Button Content="Update Texture Manifest" Command="{Binding UpdateTextureManifestCommand}" />
+                                <Button Content="Inject Missing Thanos/Knowhere TFC Textures" Command="{Binding InjectTextureCachePayloadsCommand}" />
+                                <Button Content="Run Knowhere Profile (Preflight → Inject → Verify)" Command="{Binding RunKnowhereProfileCommand}" />
+                                <Button Content="Rollback Latest TFC Backup Set" Command="{Binding RollbackTextureCacheCommand}" />
+                                <ProgressBar Minimum="0"
+                                             Maximum="100"
+                                             Value="{Binding TextureInjectProgress}"
+                                             Height="8" />
+                                <TextBlock Text="{Binding TextureInjectProgressText}" TextWrapping="Wrap" Opacity="0.85" />
 
                                 <TextBlock Text="{Binding ThanosReport.FilePath}"
                                            TextWrapping="Wrap"
@@ -338,4 +352,3 @@
         </TabViewItem>
     </TabView>
 </Page>
-

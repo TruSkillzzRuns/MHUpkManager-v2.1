@@ -1,4 +1,4 @@
-﻿using System.ComponentModel;
+using System.ComponentModel;
 using System.Runtime.CompilerServices;
 
 namespace OmegaAssetStudio.WinUI.Modules.Workflows;
@@ -76,4 +76,3 @@ public sealed class WorkflowsViewModel : INotifyPropertyChanged
         return true;
     }
 }
-

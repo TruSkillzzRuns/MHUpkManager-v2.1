@@ -21,11 +21,13 @@ public sealed partial class UpkMigrationView : Page
         UpkMigrationService migrationService = new(dispatcherQueue);
         ThanosStructuralMigrationService structuralService = new();
         ThanosTextureMigrationService textureService = new();
+        ThanosTextureCacheInjectorService textureCacheInjectorService = new();
         TfcManifestService tfcManifestService = new();
-        ViewModel = new UpkMigrationViewModel(migrationService, structuralService, textureService, tfcManifestService, dispatcherQueue);
+        ViewModel = new UpkMigrationViewModel(migrationService, structuralService, textureService, textureCacheInjectorService, tfcManifestService, dispatcherQueue);
         ViewModel.SelectUpksRequestedAsync = SelectUpksAsync;
         ViewModel.BrowseOutputDirectoryRequestedAsync = BrowseOutputDirectoryAsync;
         ViewModel.BrowseTextureManifestDirectoryRequestedAsync = BrowseOutputDirectoryAsync;
+        ViewModel.BrowseTextureSourceDirectoryRequestedAsync = BrowseOutputDirectoryAsync;
         ViewModel.BrowseResourcePrototypeSourceRequestedAsync = BrowseOutputDirectoryAsync;
         ViewModel.BrowseResourcePrototypeOutputRequestedAsync = BrowseOutputDirectoryAsync;
         ViewModel.BrowseBackportLogRequestedAsync = BrowseBackportLogAsync;
