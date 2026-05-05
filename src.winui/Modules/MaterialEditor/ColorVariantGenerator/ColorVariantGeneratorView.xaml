@@ -1,4 +1,4 @@
-﻿<UserControl
+<UserControl
     x:Class="OmegaAssetStudio.WinUI.Modules.MaterialEditor.ColorVariantGenerator.ColorVariantGeneratorView"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -7,31 +7,79 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d">
 
-    <Grid Padding="16" RowSpacing="12">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="*" />
-        </Grid.RowDefinitions>
-        <TextBlock Text="Color Variant Generator" FontSize="22" FontWeight="SemiBold" />
-        <StackPanel Grid.Row="0" Margin="0,32,0,0" Spacing="4">
-            <TextBlock Text="{Binding SelectedMaterialSummaryText}" Opacity="0.75" />
-            <TextBlock Text="{Binding VariantCountText}" Opacity="0.75" />
-            <TextBlock Text="{Binding SelectedVariantSummaryText}" Opacity="0.75" TextWrapping="Wrap" />
-        </StackPanel>
-        <Grid Grid.Row="1" ColumnDefinitions="*,*" ColumnSpacing="12">
-            <local:ColorVariantPaletteControl />
-            <Border Grid.Column="1"
-                    Padding="12"
-                    CornerRadius="12"
-                    Background="{ThemeResource OmegaAssetStudio.PanelBackgroundBrush}"
-                    BorderBrush="{ThemeResource OmegaAssetStudio.PanelBorderBrush}"
-                    BorderThickness="1">
-                <StackPanel Spacing="8">
-                    <TextBlock Text="Variant Preview" FontWeight="SemiBold" />
-                    <TextBlock Text="{Binding StatusText}" Opacity="0.75" />
-                </StackPanel>
-            </Border>
+    <ScrollViewer HorizontalScrollBarVisibility="Disabled"
+                  VerticalScrollBarVisibility="Auto">
+        <Grid Padding="16" RowSpacing="12">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+            <TextBlock Text="Color Variant Generator" FontSize="22" FontWeight="SemiBold" />
+            <StackPanel Grid.Row="0" Margin="0,32,0,0" Spacing="4">
+                <TextBlock Text="{Binding SelectedMaterialSummaryText}" Opacity="0.75" TextWrapping="WrapWholeWords" />
+                <TextBlock Text="{Binding VariantCountText}" Opacity="0.75" TextWrapping="WrapWholeWords" />
+                <TextBlock Text="{Binding SelectedVariantSummaryText}" Opacity="0.75" TextWrapping="WrapWholeWords" />
+            </StackPanel>
+            <Grid Grid.Row="1" ColumnSpacing="12">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="1.2*" MinWidth="280" />
+                    <ColumnDefinition Width="1.8*" MinWidth="420" />
+                </Grid.ColumnDefinitions>
+                <local:ColorVariantPaletteControl />
+                <Border Grid.Column="1"
+                        Padding="12"
+                        CornerRadius="12"
+                        Background="{ThemeResource OmegaAssetStudio.PanelBackgroundBrush}"
+                        BorderBrush="{ThemeResource OmegaAssetStudio.PanelBorderBrush}"
+                        BorderThickness="1">
+                    <StackPanel Spacing="8">
+                        <TextBlock Text="Variant Preview" FontWeight="SemiBold" />
+                        <Grid ColumnDefinitions="*,*,*" ColumnSpacing="8">
+                            <Border Height="44" CornerRadius="8" Background="{Binding PrimaryBrush}" />
+                            <Border Grid.Column="1" Height="44" CornerRadius="8" Background="{Binding SecondaryBrush}" />
+                            <Border Grid.Column="2" Height="44" CornerRadius="8" Background="{Binding AccentBrush}" />
+                        </Grid>
+                        <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto,Auto,Auto" ColumnSpacing="8" RowSpacing="6">
+                            <TextBlock VerticalAlignment="Center" Text="Preset" />
+                            <ComboBox Grid.Column="1"
+                                      x:Name="PresetComboBox"
+                                      MinWidth="220"
+                                      ItemsSource="{Binding Presets}" />
+                            <TextBlock Grid.Row="1" VerticalAlignment="Center" Text="Hue Shift" />
+                            <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding HueShiftText, Mode=TwoWay}" />
+                            <TextBlock Grid.Row="2" VerticalAlignment="Center" Text="Saturation / Value" />
+                            <Grid Grid.Row="2" Grid.Column="1" ColumnDefinitions="*,*" ColumnSpacing="8">
+                                <TextBox Text="{Binding SaturationScaleText, Mode=TwoWay}" />
+                                <TextBox Grid.Column="1" Text="{Binding ValueScaleText, Mode=TwoWay}" />
+                            </Grid>
+                        </Grid>
+                        <Grid ColumnDefinitions="*,*" ColumnSpacing="8" RowDefinitions="Auto,Auto,Auto,Auto">
+                            <Button Grid.Row="0" Grid.Column="0" Click="ApplyPreset_Click">
+                                <TextBlock Text="Apply Preset" TextWrapping="WrapWholeWords" TextAlignment="Center" />
+                            </Button>
+                            <Button Grid.Row="0" Grid.Column="1" Click="GenerateVariant_Click">
+                                <TextBlock Text="Generate HSV Variant" TextWrapping="WrapWholeWords" TextAlignment="Center" />
+                            </Button>
+                            <Button Grid.Row="1" Grid.Column="0" Click="ApplyVariantToMaterial_Click">
+                                <TextBlock Text="Apply to Material" TextWrapping="WrapWholeWords" TextAlignment="Center" />
+                            </Button>
+                            <Button Grid.Row="1" Grid.Column="1" Click="ExportVariants_Click">
+                                <TextBlock Text="Export Variants" TextWrapping="WrapWholeWords" TextAlignment="Center" />
+                            </Button>
+                            <Button Grid.Row="2" Grid.Column="0" Click="ImportVariants_Click">
+                                <TextBlock Text="Import Variants" TextWrapping="WrapWholeWords" TextAlignment="Center" />
+                            </Button>
+                            <Button Grid.Row="2"
+                                    Grid.Column="1"
+                                    Click="RevertLastChange_Click"
+                                    IsEnabled="{Binding CanRevert}">
+                                <TextBlock Text="Revert Last Change" TextWrapping="WrapWholeWords" TextAlignment="Center" />
+                            </Button>
+                        </Grid>
+                        <TextBlock Text="{Binding StatusText}" Opacity="0.75" TextWrapping="WrapWholeWords" />
+                    </StackPanel>
+                </Border>
+            </Grid>
         </Grid>
-    </Grid>
+    </ScrollViewer>
 </UserControl>
-

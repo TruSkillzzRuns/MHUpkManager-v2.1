@@ -1,4 +1,4 @@
-﻿<UserControl
+<UserControl
     x:Class="OmegaAssetStudio.WinUI.Modules.MaterialEditor.ShaderInspector.ShaderMetadataControl"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
@@ -8,11 +8,27 @@
             Background="{ThemeResource OmegaAssetStudio.PanelSecondaryBrush}"
             BorderBrush="{ThemeResource OmegaAssetStudio.PanelBorderBrush}"
             BorderThickness="1">
-        <StackPanel Spacing="4">
+        <StackPanel Spacing="8">
             <TextBlock Text="Shader Metadata" FontWeight="SemiBold" />
-            <TextBlock Text="{Binding SelectedShader.Name}" />
-            <TextBlock Opacity="0.7" Text="{Binding SelectedShader.SourcePath}" TextWrapping="Wrap" />
+            <TextBlock Text="{Binding SelectedShader.Name}" TextWrapping="WrapWholeWords" />
+            <TextBlock Opacity="0.7" Text="{Binding SelectedShader.SourcePath}" TextWrapping="WrapWholeWords" />
+            <TextBlock Opacity="0.7" Text="{Binding MetadataSummaryText}" TextWrapping="WrapWholeWords" />
+            <TextBlock Text="Parameter Bindings" FontWeight="SemiBold" />
+            <ItemsControl ItemsSource="{Binding ParameterBindings}">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <TextBlock Opacity="0.8" Text="{Binding}" TextWrapping="WrapWholeWords" />
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+            <TextBlock Text="Material Usage" FontWeight="SemiBold" />
+            <ItemsControl ItemsSource="{Binding UsagePaths}">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <TextBlock Opacity="0.8" Text="{Binding}" TextWrapping="WrapWholeWords" />
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
         </StackPanel>
     </Border>
 </UserControl>
-

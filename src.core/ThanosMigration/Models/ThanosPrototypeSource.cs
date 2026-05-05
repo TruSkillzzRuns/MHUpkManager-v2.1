@@ -21,5 +21,7 @@ public sealed class ThanosPrototypeSource
     public bool IsRaidRelevant { get; set; } = true;
 
     public string RaidReason { get; set; } = string.Empty;
+
+    public bool IsRequiredRaidRoot { get; set; }
 }
 

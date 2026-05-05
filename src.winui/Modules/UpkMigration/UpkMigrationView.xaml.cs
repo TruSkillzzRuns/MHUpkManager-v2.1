@@ -40,6 +40,7 @@ public sealed partial class UpkMigrationView : Page
         ViewModel.PrototypeMerger.BrowseReportRequestedAsync = BrowseDependencyReportAsync;
         ViewModel.PrototypeMerger.BrowseClient148RootRequestedAsync = BrowseOutputDirectoryAsync;
         ViewModel.PrototypeMerger.BrowseClient152RootRequestedAsync = BrowseOutputDirectoryAsync;
+        ViewModel.PrototypeMerger.BrowseSourceUpksRequestedAsync = BrowseDeploySourcesAsync;
         DataContext = ViewModel;
     }
 
@@ -90,6 +91,21 @@ public sealed partial class UpkMigrationView : Page
 
         StorageFile? file = await picker.PickSingleFileAsync();
         return file?.Path;
+    }
+
+    private async Task<IReadOnlyList<string>> BrowseDeploySourcesAsync()
+    {
+        FileOpenPicker picker = new();
+        picker.FileTypeFilter.Add(".upk");
+        picker.SuggestedStartLocation = PickerLocationId.Desktop;
+        InitializePicker(picker);
+
+        IReadOnlyList<StorageFile> files = await picker.PickMultipleFilesAsync();
+        List<string> paths = [];
+        foreach (StorageFile file in files)
+            paths.Add(file.Path);
+
+        return paths;
     }
 
     private async Task<string?> BrowseDependencyReportAsync()

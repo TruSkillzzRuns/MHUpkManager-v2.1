@@ -48,6 +48,18 @@ public sealed partial class MaterialPreviewHost : UserControl
         typeof(MaterialPreviewHost),
         new PropertyMetadata(0, OnPreviewSourceChanged));
 
+    public static readonly DependencyProperty PreviewTextureSlotPathProperty = DependencyProperty.Register(
+        nameof(PreviewTextureSlotPath),
+        typeof(string),
+        typeof(MaterialPreviewHost),
+        new PropertyMetadata(string.Empty, OnPreviewSourceChanged));
+
+    public static readonly DependencyProperty PreviewTextureMipIndexProperty = DependencyProperty.Register(
+        nameof(PreviewTextureMipIndex),
+        typeof(int),
+        typeof(MaterialPreviewHost),
+        new PropertyMetadata(-1, OnPreviewSourceChanged));
+
     public static readonly DependencyProperty DiagnosticsTextProperty = DependencyProperty.Register(
         nameof(DiagnosticsText),
         typeof(string),
@@ -105,6 +117,18 @@ public sealed partial class MaterialPreviewHost : UserControl
     {
         get => (int)GetValue(PreviewRefreshTokenProperty);
         set => SetValue(PreviewRefreshTokenProperty, value);
+    }
+
+    public string PreviewTextureSlotPath
+    {
+        get => (string)GetValue(PreviewTextureSlotPathProperty);
+        set => SetValue(PreviewTextureSlotPathProperty, value);
+    }
+
+    public int PreviewTextureMipIndex
+    {
+        get => (int)GetValue(PreviewTextureMipIndexProperty);
+        set => SetValue(PreviewTextureMipIndexProperty, value);
     }
 
     public string DiagnosticsText
@@ -200,7 +224,8 @@ public sealed partial class MaterialPreviewHost : UserControl
         try
         {
             DiagnosticsText = "Updating material preview...";
-            await renderer.UpdatePreviewAsync(CurrentMaterial, PreviewConfig, PreviewMeshUpkPath, PreviewMeshExportPath, PreviewLodIndex).ConfigureAwait(true);
+            int? requestedMip = PreviewTextureMipIndex >= 0 ? PreviewTextureMipIndex : null;
+            await renderer.UpdatePreviewAsync(CurrentMaterial, PreviewConfig, PreviewMeshUpkPath, PreviewMeshExportPath, PreviewLodIndex, PreviewTextureSlotPath, requestedMip).ConfigureAwait(true);
             DiagnosticsText = renderer.Diagnostics;
         }
         catch (Exception ex)

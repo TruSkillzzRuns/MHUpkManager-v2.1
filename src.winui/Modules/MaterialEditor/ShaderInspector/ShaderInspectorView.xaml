@@ -7,39 +7,56 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d">
 
-    <Grid Padding="16" RowSpacing="12">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="*" />
-        </Grid.RowDefinitions>
-        <TextBlock Text="Shader Inspector" FontSize="22" FontWeight="SemiBold" />
-        <StackPanel Grid.Row="0" Margin="0,32,0,0" Spacing="4">
-            <TextBlock Text="{Binding SelectedShaderSummaryText}" Opacity="0.75" />
-            <TextBlock Text="{Binding PermutationCountText}" Opacity="0.75" />
-            <TextBlock Text="{Binding SelectedPermutationSummaryText}" Opacity="0.75" TextWrapping="Wrap" />
-        </StackPanel>
-        <Grid Grid.Row="1" ColumnDefinitions="*,360" ColumnSpacing="12">
-            <Border Padding="12"
-                    CornerRadius="12"
-                    Background="{ThemeResource OmegaAssetStudio.PanelBackgroundBrush}"
-                    BorderBrush="{ThemeResource OmegaAssetStudio.PanelBorderBrush}"
-                    BorderThickness="1">
-                <StackPanel Spacing="8">
-                    <TextBlock Text="Permutations" FontWeight="SemiBold" />
-                    <ListView ItemsSource="{Binding Permutations}" SelectedItem="{Binding SelectedPermutation, Mode=TwoWay}">
-                        <ListView.ItemTemplate>
-                            <DataTemplate>
-                                <StackPanel>
-                                    <TextBlock Text="{Binding Name}" />
-                                    <TextBlock Opacity="0.7" Text="{Binding Value}" />
-                                </StackPanel>
-                            </DataTemplate>
-                        </ListView.ItemTemplate>
-                    </ListView>
-                </StackPanel>
-            </Border>
-            <local:ShaderMetadataControl Grid.Column="1" />
+    <ScrollViewer HorizontalScrollBarVisibility="Disabled"
+                  VerticalScrollBarVisibility="Auto">
+        <Grid Padding="16" RowSpacing="12">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+            <TextBlock Text="Shader Inspector" FontSize="22" FontWeight="SemiBold" />
+            <StackPanel Grid.Row="0" Margin="0,32,0,0" Spacing="4">
+                <TextBlock Text="{Binding SelectedShaderSummaryText}" Opacity="0.75" TextWrapping="WrapWholeWords" />
+                <TextBlock Text="{Binding PermutationCountText}" Opacity="0.75" TextWrapping="WrapWholeWords" />
+                <TextBlock Text="{Binding SelectedPermutationSummaryText}" Opacity="0.75" TextWrapping="WrapWholeWords" />
+            </StackPanel>
+            <Grid Grid.Row="1" ColumnDefinitions="*,*" ColumnSpacing="12">
+                <Border Padding="12"
+                        CornerRadius="12"
+                        Background="{ThemeResource OmegaAssetStudio.PanelBackgroundBrush}"
+                        BorderBrush="{ThemeResource OmegaAssetStudio.PanelBorderBrush}"
+                        BorderThickness="1">
+                    <StackPanel Spacing="8">
+                        <TextBlock Text="Permutations" FontWeight="SemiBold" />
+                        <ListView ItemsSource="{Binding Permutations}"
+                                  SelectedItem="{Binding SelectedPermutation, Mode=TwoWay}"
+                                  HorizontalContentAlignment="Stretch"
+                                  ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                            <ListView.ItemContainerStyle>
+                                <Style TargetType="ListViewItem">
+                                    <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                                    <Setter Property="Padding" Value="0" />
+                                </Style>
+                            </ListView.ItemContainerStyle>
+                            <ListView.ItemTemplate>
+                                <DataTemplate>
+                                    <StackPanel>
+                                        <TextBlock Text="{Binding Name}"
+                                                   TextWrapping="Wrap"
+                                                   ToolTipService.ToolTip="{Binding Name}" />
+                                        <TextBlock Opacity="0.7"
+                                                   Text="{Binding Value}"
+                                                   TextWrapping="Wrap"
+                                                   ToolTipService.ToolTip="{Binding Value}" />
+                                    </StackPanel>
+                                </DataTemplate>
+                            </ListView.ItemTemplate>
+                        </ListView>
+                    </StackPanel>
+                </Border>
+                <local:ShaderMetadataControl Grid.Column="1" />
+            </Grid>
         </Grid>
-    </Grid>
+    </ScrollViewer>
 </UserControl>
 

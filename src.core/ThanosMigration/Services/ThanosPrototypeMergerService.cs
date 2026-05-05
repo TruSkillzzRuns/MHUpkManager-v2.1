@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -26,10 +27,12 @@ public sealed class ThanosPrototypeMergerService
         foreach (ThanosPrototypeMergePlan plan in plans)
         {
             string targetPath = Path.GetFullPath(plan.TargetUpkPath);
+            string? wholePackageSource = SelectWholePackageSource(targetPath, plan.SourcePrototypes);
             List<ThanosMigrationStep> planSteps =
             [
                 new() { Name = "LoadTargetUpk", Description = $"Load target package: {targetPath}" },
                 new() { Name = "LoadSourcePrototypes", Description = $"Load {plan.SourcePrototypes.Count:N0} source prototype(s)." },
+                new() { Name = "HydratePackageExports", Description = "Hydrate full source package exports for matching Thanos/Knowhere targets." },
                 new() { Name = "InjectPrototypes", Description = "Clone source exports into the target package." },
                 new() { Name = "PatchReferences", Description = "Patch import/export references and table indices." },
                 new() { Name = "WriteUpdatedUpk", Description = "Write the updated 1.52 package." }
@@ -39,46 +42,132 @@ public sealed class ThanosPrototypeMergerService
 
             try
             {
-                UnrealHeader targetHeader = await LoadTargetHeaderAsync(targetPath, plan.SourcePrototypes).ConfigureAwait(false);
+                if (!string.IsNullOrWhiteSpace(wholePackageSource))
+                {
+                    Directory.CreateDirectory(Path.GetDirectoryName(targetPath) ?? fullRoot);
+                    File.Copy(wholePackageSource, targetPath, overwrite: true);
+
+                    planSteps[0].Status = ThanosMigrationStepStatus.Done;
+                    planSteps[0].Reason = $"Using source file as base: {Path.GetFileName(wholePackageSource)}";
+                    planSteps[1].Status = ThanosMigrationStepStatus.Done;
+                    planSteps[1].Reason = "Source package resolved.";
+                    planSteps[2].Status = ThanosMigrationStepStatus.Done;
+                    planSteps[2].Reason = "Raw copy mode for same-name Thanos/Knowhere package.";
+                    planSteps[3].Status = ThanosMigrationStepStatus.Skipped;
+                    planSteps[3].Reason = "Prototype injection skipped in raw copy mode.";
+                    planSteps[4].Status = ThanosMigrationStepStatus.Skipped;
+                    planSteps[4].Reason = "Reference patch skipped in raw copy mode.";
+                    planSteps[5].Status = ThanosMigrationStepStatus.Done;
+                    planSteps[5].Reason = $"Copied {wholePackageSource} to {targetPath}.";
+                    continue;
+                }
+
+                UnrealHeader targetHeader = await LoadTargetHeaderAsync(targetPath, plan.SourcePrototypes, wholePackageSource).ConfigureAwait(false);
                 planSteps[0].Status = ThanosMigrationStepStatus.Done;
 
-                Dictionary<int, int> exportMap = new();
+                Dictionary<string, int> exportMap = new(StringComparer.OrdinalIgnoreCase);
                 Dictionary<string, int> importMap = new(StringComparer.OrdinalIgnoreCase);
-                List<UnrealHeader> sourceHeaders = [];
                 Dictionary<string, UnrealHeader> sourceHeaderCache = new(StringComparer.OrdinalIgnoreCase);
+                Dictionary<string, Dictionary<int, UnrealExportTableEntry>> sourceExportLookup = new(StringComparer.OrdinalIgnoreCase);
+                HashSet<string> inProgressExports = new(StringComparer.OrdinalIgnoreCase);
+                HashSet<UnrealHeader> sourceHeaders = [];
 
                 foreach (ThanosPrototypeSource source in plan.SourcePrototypes)
                 {
                     UnrealHeader sourceHeader = await LoadHeaderAsync(source.SourceUpkPath, sourceHeaderCache).ConfigureAwait(false);
-                    if (!sourceHeaders.Contains(sourceHeader))
-                        sourceHeaders.Add(sourceHeader);
+                    sourceHeaders.Add(sourceHeader);
+
+                    string headerKey = Path.GetFullPath(sourceHeader.FullFilename);
+                    if (!sourceExportLookup.ContainsKey(headerKey))
+                        sourceExportLookup[headerKey] = sourceHeader.ExportTable.ToDictionary(entry => entry.TableIndex);
                 }
 
                 planSteps[1].Status = ThanosMigrationStepStatus.Done;
                 planSteps[1].Reason = $"Loaded {sourceHeaders.Count:N0} source package(s).";
 
-                int injectedCount = 0;
-                foreach (ThanosPrototypeSource source in plan.SourcePrototypes)
+                int hydratedCount = 0;
+                if (!string.IsNullOrWhiteSpace(wholePackageSource))
                 {
-                    UnrealHeader sourceHeader = sourceHeaderCache[Path.GetFullPath(source.SourceUpkPath)];
-                    UnrealExportTableEntry sourceExport = sourceHeader.ExportTable.First(entry => entry.TableIndex == source.ExportIndex);
+                    planSteps[2].Status = ThanosMigrationStepStatus.Skipped;
+                    planSteps[2].Reason = $"Using full source package base: {Path.GetFileName(wholePackageSource)}";
+                }
+                else
+                {
+                    foreach (UnrealHeader sourceHeader in sourceHeaders)
+                    {
+                        if (!ShouldHydrateWholePackage(targetPath, sourceHeader.FullFilename))
+                            continue;
 
-                    int targetExportIndex = await EnsureExportAsync(targetHeader, sourceHeader, sourceExport, exportMap, importMap).ConfigureAwait(false);
-                    exportMap[sourceExport.TableIndex] = targetExportIndex;
-                    injectedCount++;
+                        foreach (UnrealExportTableEntry export in sourceHeader.ExportTable.OrderBy(entry => entry.TableIndex))
+                        {
+                            int beforeCount = targetHeader.ExportTable.Count;
+                            _ = await EnsureExportAsync(
+                                targetHeader,
+                                sourceHeader,
+                                export,
+                                exportMap,
+                                importMap,
+                                sourceExportLookup,
+                                inProgressExports).ConfigureAwait(false);
+
+                            if (targetHeader.ExportTable.Count > beforeCount)
+                                hydratedCount += targetHeader.ExportTable.Count - beforeCount;
+                        }
+                    }
+
+                    planSteps[2].Status = ThanosMigrationStepStatus.Done;
+                    planSteps[2].Reason = hydratedCount > 0
+                        ? $"Hydrated {hydratedCount:N0} export(s) from full source package(s)."
+                        : "No full-package hydration applied for this target.";
                 }
 
-                planSteps[2].Status = ThanosMigrationStepStatus.Done;
-                planSteps[2].Reason = $"Injected {injectedCount:N0} prototype export(s).";
+                if (!string.IsNullOrWhiteSpace(wholePackageSource))
+                {
+                    planSteps[3].Status = ThanosMigrationStepStatus.Skipped;
+                    planSteps[3].Reason = "Injection skipped for full-package base mode.";
+                    planSteps[4].Status = ThanosMigrationStepStatus.Skipped;
+                    planSteps[4].Reason = "Reference patch skipped for full-package base mode.";
+                }
+                else
+                {
+                    int injectedCount = 0;
+                    foreach (ThanosPrototypeSource source in plan.SourcePrototypes)
+                    {
+                        UnrealHeader sourceHeader = sourceHeaderCache[Path.GetFullPath(source.SourceUpkPath)];
+                        UnrealExportTableEntry sourceExport = sourceHeader.ExportTable.First(entry => entry.TableIndex == source.ExportIndex);
 
-                PatchExportReferences(targetHeader, exportMap, importMap);
-                planSteps[3].Status = ThanosMigrationStepStatus.Done;
-                planSteps[3].Reason = "References patched where matching target entries were found.";
+                        int beforeCount = targetHeader.ExportTable.Count;
+                        int targetExportIndex = await EnsureExportAsync(
+                            targetHeader,
+                            sourceHeader,
+                            sourceExport,
+                            exportMap,
+                            importMap,
+                            sourceExportLookup,
+                            inProgressExports).ConfigureAwait(false);
+
+                        if (targetExportIndex > 0)
+                        {
+                            string sourceHeaderPath = Path.GetFullPath(sourceHeader.FullFilename);
+                            exportMap[BuildExportMapKey(sourceHeaderPath, sourceExport.TableIndex)] = targetExportIndex;
+                        }
+
+                        if (targetHeader.ExportTable.Count > beforeCount)
+                            injectedCount += targetHeader.ExportTable.Count - beforeCount;
+                    }
+
+                    planSteps[3].Status = ThanosMigrationStepStatus.Done;
+                    planSteps[3].Reason = $"Injected {injectedCount:N0} export(s).";
+
+                    PatchExportReferences(targetHeader);
+                    planSteps[4].Status = ThanosMigrationStepStatus.Done;
+                    planSteps[4].Reason = "References patched where matching target entries were found.";
+                }
 
                 Directory.CreateDirectory(Path.GetDirectoryName(targetPath) ?? fullRoot);
                 await repository.SaveUpkFile(targetHeader, targetPath).ConfigureAwait(false);
-                planSteps[4].Status = ThanosMigrationStepStatus.Done;
-                planSteps[4].Reason = $"Wrote {targetPath}.";
+                planSteps[5].Status = ThanosMigrationStepStatus.Done;
+                planSteps[5].Reason = $"Wrote {targetPath}.";
             }
             catch (System.Exception ex)
             {
@@ -94,8 +183,19 @@ public sealed class ThanosPrototypeMergerService
         return steps;
     }
 
-    private async Task<UnrealHeader> LoadTargetHeaderAsync(string targetPath, IReadOnlyList<ThanosPrototypeSource> sources)
+    private async Task<UnrealHeader> LoadTargetHeaderAsync(string targetPath, IReadOnlyList<ThanosPrototypeSource> sources, string? wholePackageSource)
     {
+        if (!string.IsNullOrWhiteSpace(wholePackageSource))
+        {
+            UnrealHeader sourceBasedHeader = await LoadHeaderAsync(
+                wholePackageSource,
+                new Dictionary<string, UnrealHeader>(StringComparer.OrdinalIgnoreCase)).ConfigureAwait(false);
+            sourceBasedHeader.FullFilename = targetPath;
+            SetProperty(sourceBasedHeader, "Version", (ushort)152);
+            SetProperty(sourceBasedHeader, "Licensee", (ushort)0);
+            return sourceBasedHeader;
+        }
+
         if (File.Exists(targetPath))
         {
             UnrealHeader targetHeader = await LoadHeaderAsync(targetPath, new Dictionary<string, UnrealHeader>(StringComparer.OrdinalIgnoreCase)).ConfigureAwait(false);
@@ -112,6 +212,41 @@ public sealed class ThanosPrototypeMergerService
         return baseHeader;
     }
 
+    private static string? SelectWholePackageSource(string targetPath, IReadOnlyList<ThanosPrototypeSource> sources)
+    {
+        string targetFile = Path.GetFileName(targetPath);
+        ThanosPrototypeSource? sameName = sources.FirstOrDefault(source =>
+            string.Equals(Path.GetFileName(source.SourceUpkPath), targetFile, StringComparison.OrdinalIgnoreCase));
+
+        if (sameName is not null)
+        {
+            return ShouldHydrateWholePackage(targetPath, sameName.SourceUpkPath)
+                ? Path.GetFullPath(sameName.SourceUpkPath)
+                : null;
+        }
+
+        string targetName = Path.GetFileNameWithoutExtension(targetPath);
+        if (!targetName.EndsWith("_152", StringComparison.OrdinalIgnoreCase))
+            return null;
+
+        string canonicalTargetName = targetName[..^4];
+        ThanosPrototypeSource? canonicalSource = sources.FirstOrDefault(source =>
+            string.Equals(
+                Path.GetFileNameWithoutExtension(source.SourceUpkPath),
+                canonicalTargetName,
+                StringComparison.OrdinalIgnoreCase));
+        if (canonicalSource is null)
+            return null;
+
+        bool isRaidOrHubPayload =
+            canonicalTargetName.Contains("Thanos", StringComparison.OrdinalIgnoreCase) ||
+            canonicalTargetName.Contains("Knowhere", StringComparison.OrdinalIgnoreCase);
+
+        return isRaidOrHubPayload
+            ? Path.GetFullPath(canonicalSource.SourceUpkPath)
+            : null;
+    }
+
     private async Task<UnrealHeader> LoadHeaderAsync(string path, Dictionary<string, UnrealHeader> cache)
     {
         string fullPath = Path.GetFullPath(path);
@@ -124,92 +259,115 @@ public sealed class ThanosPrototypeMergerService
         return header;
     }
 
-    private Task<int> EnsureExportAsync(
+    private async Task<int> EnsureExportAsync(
         UnrealHeader targetHeader,
         UnrealHeader sourceHeader,
         UnrealExportTableEntry sourceExport,
-        Dictionary<int, int> exportMap,
-        Dictionary<string, int> importMap)
+        Dictionary<string, int> exportMap,
+        Dictionary<string, int> importMap,
+        Dictionary<string, Dictionary<int, UnrealExportTableEntry>> sourceExportLookup,
+        HashSet<string> inProgressExports)
     {
+        string sourceHeaderKey = Path.GetFullPath(sourceHeader.FullFilename);
+        string progressKey = $"{sourceHeaderKey}|{sourceExport.TableIndex}";
+        string exportMapKey = BuildExportMapKey(sourceHeaderKey, sourceExport.TableIndex);
+
+        if (exportMap.TryGetValue(exportMapKey, out int mappedIndex) && mappedIndex > 0)
+            return mappedIndex;
+
+        if (inProgressExports.Contains(progressKey))
+            return 0;
+
         int existingIndex = FindMatchingExportIndex(targetHeader, sourceExport);
         if (existingIndex > 0)
-            return Task.FromResult(existingIndex);
-
-        int clonedClassReference = ResolveReference(targetHeader, sourceHeader, sourceExport.ClassReference, exportMap, importMap);
-        int clonedSuperReference = ResolveReference(targetHeader, sourceHeader, sourceExport.SuperReference, exportMap, importMap);
-        int clonedOuterReference = ResolveReference(targetHeader, sourceHeader, sourceExport.OuterReference, exportMap, importMap);
-        int clonedArchetypeReference = ResolveReference(targetHeader, sourceHeader, sourceExport.ArchetypeReference, exportMap, importMap);
-
-        UnrealExportTableEntry cloned = (UnrealExportTableEntry)Activator.CreateInstance(typeof(UnrealExportTableEntry), nonPublic: true)!;
-        CopyExportTableEntry(cloned, sourceExport);
-        SetProperty(cloned, "UnrealHeader", targetHeader);
-        SetProperty(cloned, "ClassReference", clonedClassReference);
-        SetProperty(cloned, "SuperReference", clonedSuperReference);
-        SetProperty(cloned, "OuterReference", clonedOuterReference);
-        SetProperty(cloned, "ArchetypeReference", clonedArchetypeReference);
-
-        if (sourceExport.UnrealObject is not null)
-            SetProperty(cloned, "UnrealObject", sourceExport.UnrealObject);
-
-        if (sourceExport.UnrealObjectReader is not null)
-            SetProperty(cloned, "UnrealObjectReader", sourceExport.UnrealObjectReader);
-
-        targetHeader.ExportTable.Add(cloned);
-        int newIndex = targetHeader.ExportTable.Count;
-        cloned.TableIndex = newIndex;
-        cloned.ObjectNameIndex.TableEntry = cloned;
-        return Task.FromResult(newIndex);
-    }
-
-    private static void PatchExportReferences(UnrealHeader targetHeader, Dictionary<int, int> exportMap, Dictionary<string, int> importMap)
-    {
-        for (int i = 0; i < targetHeader.ExportTable.Count; i++)
         {
-            UnrealExportTableEntry export = targetHeader.ExportTable[i];
-            export.TableIndex = i + 1;
-            int classReference = ResolveReference(targetHeader, targetHeader, export.ClassReference, exportMap, importMap);
-            int superReference = ResolveReference(targetHeader, targetHeader, export.SuperReference, exportMap, importMap);
-            int outerReference = ResolveReference(targetHeader, targetHeader, export.OuterReference, exportMap, importMap);
-            int archetypeReference = ResolveReference(targetHeader, targetHeader, export.ArchetypeReference, exportMap, importMap);
+            exportMap[exportMapKey] = existingIndex;
+            return existingIndex;
+        }
 
-            SetProperty(export, "ClassReference", classReference);
-            SetProperty(export, "SuperReference", superReference);
-            SetProperty(export, "OuterReference", outerReference);
-            SetProperty(export, "ArchetypeReference", archetypeReference);
-            export.ObjectNameIndex.TableEntry = export;
+        if (sourceExport.UnrealObjectReader is null)
+            await sourceHeader.ReadExportObjectAsync(sourceExport, null).ConfigureAwait(false);
+
+        inProgressExports.Add(progressKey);
+        try
+        {
+            UnrealExportTableEntry cloned = (UnrealExportTableEntry)Activator.CreateInstance(typeof(UnrealExportTableEntry), nonPublic: true)!;
+            CopyExportTableEntry(cloned, sourceExport);
+            SetProperty(cloned, "UnrealHeader", targetHeader);
+            SetProperty(cloned, "ClassReference", 0);
+            SetProperty(cloned, "SuperReference", 0);
+            SetProperty(cloned, "OuterReference", 0);
+            SetProperty(cloned, "ArchetypeReference", 0);
+
+            targetHeader.ExportTable.Add(cloned);
+            int newIndex = targetHeader.ExportTable.Count;
+            cloned.TableIndex = newIndex;
+            cloned.ObjectNameIndex.TableEntry = cloned;
+            exportMap[exportMapKey] = newIndex;
+
+            int clonedClassReference = SanitizeReference(targetHeader, await ResolveSourceReferenceAsync(
+                targetHeader, sourceHeader, sourceExport.ClassReference, exportMap, importMap, sourceExportLookup, inProgressExports).ConfigureAwait(false));
+            int clonedSuperReference = SanitizeReference(targetHeader, await ResolveSourceReferenceAsync(
+                targetHeader, sourceHeader, sourceExport.SuperReference, exportMap, importMap, sourceExportLookup, inProgressExports).ConfigureAwait(false));
+            int clonedOuterReference = SanitizeReference(targetHeader, await ResolveSourceReferenceAsync(
+                targetHeader, sourceHeader, sourceExport.OuterReference, exportMap, importMap, sourceExportLookup, inProgressExports).ConfigureAwait(false));
+            int clonedArchetypeReference = SanitizeReference(targetHeader, await ResolveSourceReferenceAsync(
+                targetHeader, sourceHeader, sourceExport.ArchetypeReference, exportMap, importMap, sourceExportLookup, inProgressExports).ConfigureAwait(false));
+
+            SetProperty(cloned, "ClassReference", clonedClassReference);
+            SetProperty(cloned, "SuperReference", clonedSuperReference);
+            SetProperty(cloned, "OuterReference", clonedOuterReference);
+            SetProperty(cloned, "ArchetypeReference", clonedArchetypeReference);
+            return newIndex;
+        }
+        finally
+        {
+            inProgressExports.Remove(progressKey);
         }
     }
 
-    private static int ResolveReference(
+    private async Task<int> ResolveSourceReferenceAsync(
         UnrealHeader targetHeader,
         UnrealHeader sourceHeader,
         int reference,
-        Dictionary<int, int> exportMap,
-        Dictionary<string, int> importMap)
+        Dictionary<string, int> exportMap,
+        Dictionary<string, int> importMap,
+        Dictionary<string, Dictionary<int, UnrealExportTableEntry>> sourceExportLookup,
+        HashSet<string> inProgressExports)
     {
         if (reference == 0)
             return 0;
 
         if (reference > 0)
         {
-            if (exportMap.TryGetValue(reference, out int mappedExport))
+            string sourceHeaderKey = Path.GetFullPath(sourceHeader.FullFilename);
+            string exportMapKey = BuildExportMapKey(sourceHeaderKey, reference);
+            if (exportMap.TryGetValue(exportMapKey, out int mappedExport))
                 return mappedExport;
 
-            UnrealExportTableEntry? sourceExport = sourceHeader.ExportTable.FirstOrDefault(entry => entry.TableIndex == reference);
-            if (sourceExport is null)
-                return reference;
+            if (!sourceExportLookup.TryGetValue(sourceHeaderKey, out Dictionary<int, UnrealExportTableEntry>? lookup))
+                return 0;
 
-            int match = FindMatchingExportIndex(targetHeader, sourceExport);
-            return match > 0 ? match : reference;
+            if (!lookup.TryGetValue(reference, out UnrealExportTableEntry? sourceExport))
+                return 0;
+
+            return await EnsureExportAsync(
+                targetHeader,
+                sourceHeader,
+                sourceExport,
+                exportMap,
+                importMap,
+                sourceExportLookup,
+                inProgressExports).ConfigureAwait(false);
         }
 
-        string key = $"{sourceHeader.FullFilename}|{reference}";
-        if (importMap.TryGetValue(key, out int mappedImport))
+        string importKey = $"{Path.GetFullPath(sourceHeader.FullFilename)}|{reference}";
+        if (importMap.TryGetValue(importKey, out int mappedImport))
             return mappedImport;
 
         UnrealImportTableEntry? sourceImport = sourceHeader.ImportTable.FirstOrDefault(entry => entry.TableIndex == reference);
         if (sourceImport is null)
-            return reference;
+            return 0;
 
         int matchImport = FindMatchingImportIndex(targetHeader, sourceImport);
         if (matchImport > 0)
@@ -221,24 +379,48 @@ public sealed class ThanosPrototypeMergerService
         targetHeader.ImportTable.Add(clonedImport);
         clonedImport.TableIndex = -(targetHeader.ImportTable.Count);
         clonedImport.ObjectNameIndex.TableEntry = clonedImport;
-        importMap[key] = clonedImport.TableIndex;
+        importMap[importKey] = clonedImport.TableIndex;
         return clonedImport.TableIndex;
+    }
+
+    private static void PatchExportReferences(UnrealHeader targetHeader)
+    {
+        for (int i = 0; i < targetHeader.ExportTable.Count; i++)
+        {
+            UnrealExportTableEntry export = targetHeader.ExportTable[i];
+            export.TableIndex = i + 1;
+
+            int classReference = SanitizeReference(targetHeader, export.ClassReference);
+            int superReference = SanitizeReference(targetHeader, export.SuperReference);
+            int outerReference = SanitizeReference(targetHeader, export.OuterReference);
+            int archetypeReference = SanitizeReference(targetHeader, export.ArchetypeReference);
+
+            SetProperty(export, "ClassReference", classReference);
+            SetProperty(export, "SuperReference", superReference);
+            SetProperty(export, "OuterReference", outerReference);
+            SetProperty(export, "ArchetypeReference", archetypeReference);
+            export.ObjectNameIndex.TableEntry = export;
+        }
     }
 
     private static int FindMatchingExportIndex(UnrealHeader targetHeader, UnrealExportTableEntry sourceExport)
     {
-        string sourcePath = sourceExport.GetPathName();
+        string sourcePath = SafeGetPathName(sourceExport);
         string objectName = sourceExport.ObjectNameIndex?.Name ?? string.Empty;
         string className = sourceExport.ClassReferenceNameIndex?.Name ?? string.Empty;
+        string outerName = sourceExport.OuterReferenceNameIndex?.Name ?? string.Empty;
 
         foreach (UnrealExportTableEntry targetExport in targetHeader.ExportTable)
         {
-            if (string.Equals(targetExport.GetPathName(), sourcePath, StringComparison.OrdinalIgnoreCase) ||
-                string.Equals(targetExport.ObjectNameIndex?.Name, objectName, StringComparison.OrdinalIgnoreCase) ||
-                string.Equals(targetExport.ClassReferenceNameIndex?.Name, className, StringComparison.OrdinalIgnoreCase))
-            {
+            string targetPath = SafeGetPathName(targetExport);
+            if (string.Equals(targetPath, sourcePath, StringComparison.OrdinalIgnoreCase))
                 return targetExport.TableIndex;
-            }
+
+            bool sameObject = string.Equals(targetExport.ObjectNameIndex?.Name, objectName, StringComparison.OrdinalIgnoreCase);
+            bool sameClass = string.Equals(targetExport.ClassReferenceNameIndex?.Name, className, StringComparison.OrdinalIgnoreCase);
+            bool sameOuter = string.Equals(targetExport.OuterReferenceNameIndex?.Name, outerName, StringComparison.OrdinalIgnoreCase);
+            if (sameObject && sameClass && sameOuter)
+                return targetExport.TableIndex;
         }
 
         return 0;
@@ -246,18 +428,22 @@ public sealed class ThanosPrototypeMergerService
 
     private static int FindMatchingImportIndex(UnrealHeader targetHeader, UnrealImportTableEntry sourceImport)
     {
-        string sourcePath = sourceImport.GetPathName();
+        string sourcePath = SafeGetPathName(sourceImport);
         string objectName = sourceImport.ObjectNameIndex?.Name ?? string.Empty;
         string className = sourceImport.ClassNameIndex?.Name ?? string.Empty;
+        string outerName = sourceImport.OuterReferenceNameIndex?.Name ?? string.Empty;
 
         foreach (UnrealImportTableEntry targetImport in targetHeader.ImportTable)
         {
-            if (string.Equals(targetImport.GetPathName(), sourcePath, StringComparison.OrdinalIgnoreCase) ||
-                string.Equals(targetImport.ObjectNameIndex?.Name, objectName, StringComparison.OrdinalIgnoreCase) ||
-                string.Equals(targetImport.ClassNameIndex?.Name, className, StringComparison.OrdinalIgnoreCase))
-            {
+            string targetPath = SafeGetPathName(targetImport);
+            if (string.Equals(targetPath, sourcePath, StringComparison.OrdinalIgnoreCase))
                 return targetImport.TableIndex;
-            }
+
+            bool sameObject = string.Equals(targetImport.ObjectNameIndex?.Name, objectName, StringComparison.OrdinalIgnoreCase);
+            bool sameClass = string.Equals(targetImport.ClassNameIndex?.Name, className, StringComparison.OrdinalIgnoreCase);
+            bool sameOuter = string.Equals(targetImport.OuterReferenceNameIndex?.Name, outerName, StringComparison.OrdinalIgnoreCase);
+            if (sameObject && sameClass && sameOuter)
+                return targetImport.TableIndex;
         }
 
         return 0;
@@ -306,10 +492,73 @@ public sealed class ThanosPrototypeMergerService
         target.OuterReferenceNameIndex = source.OuterReferenceNameIndex;
     }
 
+    private static bool ShouldHydrateWholePackage(string targetPath, string sourcePath)
+    {
+        string targetName = Path.GetFileNameWithoutExtension(targetPath);
+        string sourceName = Path.GetFileNameWithoutExtension(sourcePath);
+        if (!string.Equals(targetName, sourceName, StringComparison.OrdinalIgnoreCase))
+            return false;
+
+        return targetName.Contains("Thanos", StringComparison.OrdinalIgnoreCase)
+               || targetName.Contains("Knowhere", StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static string BuildExportMapKey(string sourceHeaderPath, int sourceExportIndex)
+    {
+        return $"{sourceHeaderPath}|{sourceExportIndex}";
+    }
+
     private static void SetProperty<T>(object instance, string propertyName, T value)
     {
         PropertyInfo? property = instance.GetType().GetProperty(propertyName, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
-        property?.SetValue(instance, value);
+        if (property is null)
+            return;
+
+        MethodInfo? setter = property.GetSetMethod(nonPublic: true);
+        if (setter is null)
+            return;
+
+        object? boxed = value;
+        if (boxed is not null)
+        {
+            Type targetType = Nullable.GetUnderlyingType(property.PropertyType) ?? property.PropertyType;
+            Type sourceType = boxed.GetType();
+            if (!targetType.IsAssignableFrom(sourceType))
+            {
+                try
+                {
+                    boxed = Convert.ChangeType(boxed, targetType, CultureInfo.InvariantCulture);
+                }
+                catch
+                {
+                    return;
+                }
+            }
+        }
+
+        setter.Invoke(instance, [boxed]);
+    }
+
+    private static string SafeGetPathName(UnrealObjectTableEntryBase entry)
+    {
+        try
+        {
+            return entry.GetPathName();
+        }
+        catch
+        {
+            return entry.ObjectNameIndex?.Name ?? string.Empty;
+        }
+    }
+
+    private static int SanitizeReference(UnrealHeader header, int reference)
+    {
+        if (reference == 0)
+            return 0;
+
+        if (reference > 0)
+            return reference <= header.ExportTable.Count ? reference : 0;
+
+        return -reference <= header.ImportTable.Count ? reference : 0;
     }
 }
-

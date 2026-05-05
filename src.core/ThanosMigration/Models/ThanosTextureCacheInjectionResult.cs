@@ -2,6 +2,8 @@ namespace OmegaAssetStudio.ThanosMigration.Models;
 
 public sealed class ThanosTextureCacheInjectionResult
 {
+    public string SourceCandidateMode { get; set; } = "unknown";
+
     public bool PreflightPassed { get; set; }
 
     public int PreflightSourceChunks { get; set; }
@@ -9,6 +11,10 @@ public sealed class ThanosTextureCacheInjectionResult
     public int PreflightTargetChunks { get; set; }
 
     public int SourceCandidateEntries { get; set; }
+
+    public int DependencySourceUpkCount { get; set; }
+
+    public int DependencyTextureSignalCount { get; set; }
 
     public int SourceMatchedEntries { get; set; }
 

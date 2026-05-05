@@ -9,8 +9,14 @@
             BorderBrush="{ThemeResource OmegaAssetStudio.PanelBorderBrush}"
             BorderThickness="1">
         <StackPanel>
-            <TextBlock FontWeight="SemiBold" Text="{Binding Label}" />
-            <TextBlock Opacity="0.7" Text="{Binding NodeType}" />
+            <TextBlock FontWeight="SemiBold"
+                       Text="{Binding Label}"
+                       TextWrapping="Wrap"
+                       ToolTipService.ToolTip="{Binding Label}" />
+            <TextBlock Opacity="0.7"
+                       Text="{Binding NodeType}"
+                       TextWrapping="Wrap"
+                       ToolTipService.ToolTip="{Binding NodeType}" />
         </StackPanel>
     </Border>
 </UserControl>

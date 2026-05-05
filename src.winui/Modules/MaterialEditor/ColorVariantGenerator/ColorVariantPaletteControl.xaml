@@ -10,12 +10,26 @@
             BorderThickness="1">
         <StackPanel Spacing="8">
             <TextBlock Text="Color Variants" FontWeight="SemiBold" />
-            <ListView ItemsSource="{Binding Variants}" SelectedItem="{Binding SelectedVariant, Mode=TwoWay}">
+            <ListView ItemsSource="{Binding Variants}"
+                      SelectedItem="{Binding SelectedVariant, Mode=TwoWay}"
+                      HorizontalContentAlignment="Stretch"
+                      ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                <ListView.ItemContainerStyle>
+                    <Style TargetType="ListViewItem">
+                        <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                        <Setter Property="Padding" Value="0" />
+                    </Style>
+                </ListView.ItemContainerStyle>
                 <ListView.ItemTemplate>
                     <DataTemplate>
                         <StackPanel Spacing="2">
-                            <TextBlock Text="{Binding Name}" />
-                            <TextBlock Opacity="0.7" Text="{Binding PrimaryColor}" />
+                            <TextBlock Text="{Binding Name}"
+                                       TextWrapping="Wrap"
+                                       ToolTipService.ToolTip="{Binding Name}" />
+                            <TextBlock Opacity="0.7"
+                                       Text="{Binding PrimaryColor}"
+                                       TextWrapping="Wrap"
+                                       ToolTipService.ToolTip="{Binding PrimaryColor}" />
                         </StackPanel>
                     </DataTemplate>
                 </ListView.ItemTemplate>

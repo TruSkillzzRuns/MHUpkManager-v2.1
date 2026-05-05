@@ -33,6 +33,12 @@
                                      Text="{Binding Client152Root, Mode=TwoWay}"
                                      PlaceholderText="Select the 1.52 client content root." />
                             <Button Content="Browse 1.52 Root" Command="{Binding BrowseClient152RootCommand}" />
+                            <TextBox Header="Source UPK(s) (1.48)"
+                                     Text="{Binding SourceUpkPath, Mode=TwoWay}"
+                                     PlaceholderText="Select one or more 1.48 Thanos/Knowhere source UPKs." />
+                            <Button Content="Browse Source UPKs" Command="{Binding BrowseSourceUpkCommand}" />
+                            <TextBlock Text="{Binding SourceUpkSelectionText}" TextWrapping="WrapWholeWords" Opacity="0.8" />
+                            <Button Content="Auto Run: Scan → Discover → Plan → Merge" Command="{Binding RunAutoPipelineCommand}" />
                             <StackPanel Orientation="Horizontal" Spacing="8">
                                 <Border Width="22" Height="22" CornerRadius="11" Background="#FF00A36C">
                                     <TextBlock Text="2" Foreground="White" FontWeight="SemiBold" HorizontalAlignment="Center" VerticalAlignment="Center" />

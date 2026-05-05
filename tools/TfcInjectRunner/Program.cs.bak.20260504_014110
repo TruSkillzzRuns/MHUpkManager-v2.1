@@ -1,0 +1,67 @@
+using System.Reflection;
+
+if (args.Length < 3)
+{
+    Console.WriteLine("Usage: TfcInjectRunner <dll> <sourceManifest> <targetManifest>");
+    return;
+}
+
+string dllPath = Path.GetFullPath(args[0]);
+string sourceManifest = Path.GetFullPath(args[1]);
+string targetManifest = Path.GetFullPath(args[2]);
+Assembly asm = Assembly.LoadFrom(dllPath);
+Type svcType = asm.GetType("OmegaAssetStudio.ThanosMigration.Services.TfcManifestService", throwOnError: true)!;
+object svc = Activator.CreateInstance(svcType)!;
+MethodInfo load = svcType.GetMethod("LoadManifest", BindingFlags.Public | BindingFlags.Instance)!;
+
+var src = ((System.Collections.IEnumerable)load.Invoke(svc, [sourceManifest])!).Cast<object>().ToList();
+var tgt = ((System.Collections.IEnumerable)load.Invoke(svc, [targetManifest])!).Cast<object>().ToList();
+
+(long off, long size, string pkg, string tex, string tfc, int idx) Read(object e)
+{
+    var t=e.GetType();
+    return (
+        Convert.ToInt64(t.GetProperty("Offset")!.GetValue(e) ?? 0L),
+        Convert.ToInt64(t.GetProperty("Size")!.GetValue(e) ?? 0L),
+        Convert.ToString(t.GetProperty("PackageName")!.GetValue(e)) ?? "",
+        Convert.ToString(t.GetProperty("TextureName")!.GetValue(e)) ?? "",
+        Convert.ToString(t.GetProperty("TfcFileName")!.GetValue(e)) ?? "",
+        Convert.ToInt32(t.GetProperty("ChunkIndex")!.GetValue(e) ?? 0)
+    );
+}
+
+bool IsInvalid(long off, long size, string tfc, Dictionary<string,long> lengths)
+{
+    if (size <= 0) return true;
+    if (off < 0 || off == uint.MaxValue) return true;
+    string n = tfc.EndsWith(".tfc", StringComparison.OrdinalIgnoreCase)?tfc:$"{tfc}.tfc";
+    if (!lengths.TryGetValue(n, out var len)) return true;
+    return off + size > len;
+}
+
+string root = Path.GetDirectoryName(targetManifest)!;
+var lengths = Directory.EnumerateFiles(root, "*.tfc", SearchOption.TopDirectoryOnly)
+    .ToDictionary(p=>Path.GetFileName(p), p=>new FileInfo(p).Length, StringComparer.OrdinalIgnoreCase);
+
+int invalidAll=0, invalidKnowhere=0, invalidThanos=0;
+var samples = new List<string>();
+foreach (var e in tgt)
+{
+    var r = Read(e);
+    if (!IsInvalid(r.off, r.size, r.tfc, lengths)) continue;
+    invalidAll++;
+    string c = (r.pkg+"|"+r.tex+"|"+r.tfc).ToLowerInvariant();
+    if (c.Contains("knowhere")) invalidKnowhere++;
+    if (c.Contains("thanos")) invalidThanos++;
+    if (samples.Count<30 && (c.Contains("knowhere") || c.Contains("thanos") || r.off==uint.MaxValue || r.off<0))
+        samples.Add($"{r.pkg}|{r.tex}|{r.tfc}|idx={r.idx}|off={r.off}|size={r.size}");
+}
+
+Console.WriteLine($"SOURCE_COUNT={src.Count}");
+Console.WriteLine($"TARGET_COUNT={tgt.Count}");
+Console.WriteLine($"INVALID_ALL={invalidAll}");
+Console.WriteLine($"INVALID_KNOWHERE={invalidKnowhere}");
+Console.WriteLine($"INVALID_THANOS={invalidThanos}");
+Console.WriteLine("SAMPLES_START");
+foreach (var s in samples) Console.WriteLine(s);
+Console.WriteLine("SAMPLES_END");

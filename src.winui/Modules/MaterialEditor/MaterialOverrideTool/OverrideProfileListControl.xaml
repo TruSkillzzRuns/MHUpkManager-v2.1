@@ -10,12 +10,26 @@
             BorderThickness="1">
         <StackPanel Spacing="8">
             <TextBlock Text="Override Profiles" FontWeight="SemiBold" />
-            <ListView ItemsSource="{Binding Profiles}" SelectedItem="{Binding SelectedProfile, Mode=TwoWay}">
+            <ListView ItemsSource="{Binding Profiles}"
+                      SelectedItem="{Binding SelectedProfile, Mode=TwoWay}"
+                      HorizontalContentAlignment="Stretch"
+                      ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                <ListView.ItemContainerStyle>
+                    <Style TargetType="ListViewItem">
+                        <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                        <Setter Property="Padding" Value="0" />
+                    </Style>
+                </ListView.ItemContainerStyle>
                 <ListView.ItemTemplate>
                     <DataTemplate>
                         <StackPanel Spacing="2">
-                            <TextBlock Text="{Binding Name}" />
-                            <TextBlock Opacity="0.7" Text="{Binding TintColor}" />
+                            <TextBlock Text="{Binding Name}"
+                                       TextWrapping="Wrap"
+                                       ToolTipService.ToolTip="{Binding Name}" />
+                            <TextBlock Opacity="0.7"
+                                       Text="{Binding TintColor}"
+                                       TextWrapping="Wrap"
+                                       ToolTipService.ToolTip="{Binding TintColor}" />
                         </StackPanel>
                     </DataTemplate>
                 </ListView.ItemTemplate>

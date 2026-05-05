@@ -11,6 +11,13 @@ namespace OmegaAssetStudio.ThanosMigration.Services;
 
 public sealed class ThanosPrototypeDiscoveryService
 {
+    private static readonly string[] RequiredRaidRootNames =
+    [
+        "ThanosRaidRegionBand",
+        "ThanosRaidRegionBase",
+        "ThanosRaidRegionGreen"
+    ];
+
     private readonly UpkFileRepository repository = new();
 
     public async Task<IReadOnlyList<ThanosPrototypeSource>> FindPrototypeSources(
@@ -37,9 +44,10 @@ public sealed class ThanosPrototypeDiscoveryService
         List<ThanosPrototypeSource> results = [];
         HashSet<string> seen = new(StringComparer.OrdinalIgnoreCase);
         int processed = 0;
-        int total = report.MissingDependencies.Count(item => item.MissingInClient);
+        List<ThanosDependencyItem> dependencies = BuildRequiredDependencySet(report.MissingDependencies);
+        int total = dependencies.Count;
 
-        foreach (ThanosDependencyItem dependency in report.MissingDependencies.Where(item => item.MissingInClient))
+        foreach (ThanosDependencyItem dependency in dependencies)
         {
             processed++;
             progress?.Report(new ThanosDiscoveryProgress
@@ -74,6 +82,7 @@ public sealed class ThanosPrototypeDiscoveryService
 
                     if (bestSource is null || match.Score > bestSource.MatchScore)
                     {
+                        bool isRequiredRaidRoot = IsRequiredRaidRootDependency(dependency);
                         bestSource = new ThanosPrototypeSource
                         {
                             Dependency = dependency,
@@ -85,13 +94,18 @@ public sealed class ThanosPrototypeDiscoveryService
                             MatchScore = match.Score,
                             MatchReason = match.Reason,
                             IsRaidRelevant = IsRaidRelevant(dependency, upkPath),
-                            RaidReason = GetRaidReason(dependency, upkPath)
+                            RaidReason = GetRaidReason(dependency, upkPath),
+                            IsRequiredRaidRoot = isRequiredRaidRoot
                         };
                     }
                 }
             }
 
-            if (bestSource is null || bestSource.MatchScore < 80)
+            if (bestSource is null)
+                continue;
+
+            int minimumScore = bestSource.IsRequiredRaidRoot ? 55 : 80;
+            if (bestSource.MatchScore < minimumScore)
                 continue;
 
             if (!bestSource.IsRaidRelevant)
@@ -252,6 +266,59 @@ public sealed class ThanosPrototypeDiscoveryService
         return header;
     }
 
+    private static List<ThanosDependencyItem> BuildRequiredDependencySet(IEnumerable<ThanosDependencyItem> items)
+    {
+        List<ThanosDependencyItem> filtered = items
+            .Where(item => item.MissingInClient)
+            .ToList();
+
+        HashSet<string> seen = filtered
+            .Select(BuildDependencyIdentity)
+            .ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+        bool hasThanosSignal = filtered.Any(item =>
+            BuildDependencyIdentity(item).Contains("thanos", StringComparison.OrdinalIgnoreCase) ||
+            BuildDependencyIdentity(item).Contains("knowhere", StringComparison.OrdinalIgnoreCase) ||
+            BuildDependencyIdentity(item).Contains("raid", StringComparison.OrdinalIgnoreCase));
+
+        if (!hasThanosSignal)
+            return filtered;
+
+        foreach (string rootName in RequiredRaidRootNames)
+        {
+            ThanosDependencyItem synthetic = new()
+            {
+                Name = rootName,
+                ObjectPath = $"Regions/RAIDS/ThanosRaid/{rootName}.prototype",
+                PackageName = "Calligraphy",
+                ClassName = "RegionPrototype",
+                OuterName = "ThanosRaid",
+                ReferenceKind = "RequiredRaidRoot",
+                MissingInClient = true,
+                Details = "Forced Thanos raid root prototype."
+            };
+
+            if (seen.Add(BuildDependencyIdentity(synthetic)))
+                filtered.Add(synthetic);
+        }
+
+        return filtered;
+    }
+
+    private static string BuildDependencyIdentity(ThanosDependencyItem item)
+    {
+        return $"{item.ObjectPath}|{item.Name}|{item.PackageName}|{item.ClassName}|{item.ReferenceKind}";
+    }
+
+    private static bool IsRequiredRaidRootDependency(ThanosDependencyItem dependency)
+    {
+        if (dependency.ReferenceKind.Equals("RequiredRaidRoot", StringComparison.OrdinalIgnoreCase))
+            return true;
+
+        string haystack = $"{dependency.Name}|{dependency.ObjectPath}".ToLowerInvariant();
+        return RequiredRaidRootNames.Any(root => haystack.Contains(root.ToLowerInvariant(), StringComparison.Ordinal));
+    }
+
     private static PrototypeMatch ScoreMatch(ThanosDependencyItem dependency, UnrealHeader header, string upkPath, UnrealExportTableEntry export)
     {
         string packageName = Path.GetFileNameWithoutExtension(upkPath);
@@ -360,6 +427,9 @@ public sealed class ThanosPrototypeDiscoveryService
 
     private static bool IsRaidRelevant(ThanosDependencyItem dependency, string upkPath)
     {
+        if (IsRequiredRaidRootDependency(dependency))
+            return true;
+
         string haystack = string.Join(" ", new[]
         {
             dependency.Name,
@@ -395,6 +465,9 @@ public sealed class ThanosPrototypeDiscoveryService
 
     private static string GetRaidReason(ThanosDependencyItem dependency, string upkPath)
     {
+        if (IsRequiredRaidRootDependency(dependency))
+            return "required-raid-root";
+
         if (dependency.ObjectPath.StartsWith("theworld.", StringComparison.OrdinalIgnoreCase))
             return "theworld";
 

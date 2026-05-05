@@ -100,7 +100,9 @@ public sealed class MaterialPreviewRenderer : IDisposable
         MaterialPreviewConfig? config,
         string previewMeshUpkPath,
         string previewMeshExportPath,
-        int previewLodIndex)
+        int previewLodIndex,
+        string selectedTextureSlotPath,
+        int? selectedTextureMipIndex)
     {
         if (disposed)
             return;
@@ -132,7 +134,7 @@ public sealed class MaterialPreviewRenderer : IDisposable
 
                 try
                 {
-                    await LoadTexturesAsync(material, previewMeshUpkPath, gameMaterial).ConfigureAwait(true);
+                    await LoadTexturesAsync(material, previewMeshUpkPath, gameMaterial, selectedTextureSlotPath, selectedTextureMipIndex).ConfigureAwait(true);
                 }
                 catch (Exception textureEx)
                 {
@@ -155,7 +157,7 @@ public sealed class MaterialPreviewRenderer : IDisposable
 
             try
             {
-                await LoadTexturesAsync(material, string.Empty, gameMaterial).ConfigureAwait(true);
+                await LoadTexturesAsync(material, string.Empty, gameMaterial, selectedTextureSlotPath, selectedTextureMipIndex).ConfigureAwait(true);
             }
             catch (Exception textureEx)
             {
@@ -169,7 +171,7 @@ public sealed class MaterialPreviewRenderer : IDisposable
 
             try
             {
-                await LoadTexturesAsync(material, string.Empty, gameMaterial).ConfigureAwait(true);
+                await LoadTexturesAsync(material, string.Empty, gameMaterial, selectedTextureSlotPath, selectedTextureMipIndex).ConfigureAwait(true);
             }
             catch (Exception textureEx)
             {
@@ -327,7 +329,7 @@ public sealed class MaterialPreviewRenderer : IDisposable
         }
     }
 
-    private async Task LoadTexturesAsync(MaterialDefinition? material, string previewMeshUpkPath, MeshPreviewGameMaterial gameMaterial)
+    private async Task LoadTexturesAsync(MaterialDefinition? material, string previewMeshUpkPath, MeshPreviewGameMaterial gameMaterial, string selectedTextureSlotPath, int? selectedTextureMipIndex)
     {
         if (material is null)
             return;
@@ -348,7 +350,10 @@ public sealed class MaterialPreviewRenderer : IDisposable
             LogMessage?.Invoke($"Loading texture {slot.TexturePath} for {slot.SlotName}.");
             try
             {
-                TexturePreviewTexture texture = await textureLoader.LoadFromUpkAsync(sourceUpkPath, slot.TexturePath, textureSlot, message => LogMessage?.Invoke(message)).ConfigureAwait(true);
+                int? requestedMip = string.Equals(slot.TexturePath, selectedTextureSlotPath, StringComparison.OrdinalIgnoreCase)
+                    ? selectedTextureMipIndex
+                    : null;
+                TexturePreviewTexture texture = await textureLoader.LoadFromUpkAsync(sourceUpkPath, slot.TexturePath, textureSlot, message => LogMessage?.Invoke(message), requestedMip).ConfigureAwait(true);
                 loadedTextures.Add(texture);
                 gameMaterial.SetTexture(MapGameTextureSlot(textureSlot), texture);
             }

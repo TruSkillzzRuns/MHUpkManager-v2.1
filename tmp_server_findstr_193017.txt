@@ -1,0 +1,255 @@
+5:[2026.05.03 19:30:18.256] [ Info] [ProtocolDispatchTable] Initialized in 296 ms
+7:[2026.05.03 19:30:18.276] [ Info] [PrototypeClassManager] Initialized 1177 prototype classes in 14 ms
+11:[2026.05.03 19:30:18.474] [ Info] [DataDirectory] Loaded 85186 Calligraphy prototype entries
+12:[2026.05.03 19:30:18.508] [ Info] [DataDirectory] Loaded 7928 resource prototype entries
+15:[2026.05.03 19:30:18.638] [Trace] [CalligraphySerializer] DeserializeFieldGroupIntoPropertyBuilder(): Param field name 'Param' does not contain param index, defaulting to 0, file name Property/Mixin/AvatarInPlay.defaults
+16:[2026.05.03 19:30:18.667] [Trace] [ObjectPool] Get<T>(): Created a new instance of PropertyCollection (ThreadId=-1, TotalCount=1)
+18:[2026.05.03 19:30:18.673] [Trace] [ObjectPool] Get<T>(): Created a new instance of PropertyCollection (ThreadId=-1, TotalCount=2)
+19:[2026.05.03 19:30:18.674] [Trace] [ObjectPool] Get<T>(): Created a new instance of PropertyCollection (ThreadId=-1, TotalCount=3)
+20:[2026.05.03 19:30:18.683] [ Info] [PropertyInfoTable] Initialized info for 1030 properties in 72 ms
+21:[2026.05.03 19:30:18.703] [Trace] [PrototypePatchManager] Parsed patch data from PatchDataBugFixes.json
+22:[2026.05.03 19:30:18.703] [Trace] [PrototypePatchManager] Parsed patch data from PatchDataMissions.json
+23:[2026.05.03 19:30:18.703] [Trace] [PrototypePatchManager] Parsed patch data from PatchDataRestoredContent.json
+24:[2026.05.03 19:30:18.703] [Trace] [PrototypePatchManager] Parsed patch data from PatchDataSpecialDrops.json
+25:[2026.05.03 19:30:18.704] [Trace] [PrototypePatchManager] Parsed patch data from PatchDataSpecialEvents.json
+26:[2026.05.03 19:30:18.704] [ Info] [PrototypePatchManager] Loaded 55 patches
+27:[2026.05.03 19:30:18.745] [Trace] [CollectionPool`2] Get(): Created a new instance of HashSet`1<PropertyEnum> (ThreadId=-1, TotalCount=1)
+28:[2026.05.03 19:30:18.746] [Trace] [CollectionPool`2] Get(): Created a new instance of List`1<PropertyId> (ThreadId=-1, TotalCount=1)
+29:[2026.05.03 19:30:18.843] [Trace] [CollectionPool`2] Get(): Created a new instance of List`1<PrototypeId> (ThreadId=-1, TotalCount=1)
+30:[2026.05.03 19:30:18.897] [Trace] [CollectionPool`2] Get(): Created a new instance of HashSet`1<PrototypeId> (ThreadId=-1, TotalCount=1)
+31:[2026.05.03 19:30:18.941] [Trace] [PrototypePatchManager] Patch Prototype: Entity/Characters/Mobs/Moloids/MoloidCrawlerBase.prototype StealablePower = 10167535038344338060
+32:[2026.05.03 19:30:19.076] [Trace] [PrototypePatchManager] Patch Prototype: Loot/Tables/ItemType/SpecialsArtifactsRespec.prototype Choices[0].NoDropPercent = 0
+33:[2026.05.03 19:30:19.254] [Trace] [PrototypePatchManager] Patch Prototype: Entity/Items/Insignias/Prototypes/Insignia022.prototype LootDropWeightMultiplier = 1
+34:[2026.05.03 19:30:19.390] [Trace] [PrototypePatchManager] Patch Prototype: Entity/Items/Insignias/Prototypes/Insignia031.prototype LootDropWeightMultiplier = 1
+35:[2026.05.03 19:30:19.466] [Trace] [PrototypePatchManager] Patch Prototype: Loot/Tables/ItemType/SpecialsCostumesCardsTokens.prototype Choices[0].Choices[0].Weight = 10
+36:[2026.05.03 19:30:19.466] [Trace] [PrototypePatchManager] Patch Prototype: Loot/Tables/ItemType/SpecialsCostumesCardsTokens.prototype Choices[0].Choices[2].Weight = 100
+37:[2026.05.03 19:30:19.466] [Trace] [PrototypePatchManager] Patch Prototype: Loot/Tables/ItemType/SpecialsCostumesCardsTokens.prototype NoDropPercent = 0.99
+38:[2026.05.03 19:30:19.466] [Trace] [PrototypePatchManager] Patch Prototype: Loot/Tables/Mob/Bosses/EndgameDailies/Subtables/SharedEndgameDailiesGreen.prototype Choices[] = 9518055978027522001
+41:[2026.05.03 19:30:19.655] [Trace] [PrototypePatchManager] Patch Prototype: Missions/Prototypes/Act3/Ch09Asgard/Ambushes/Norway/NorwayFrostGolemsFaeAmbushV1.prototype DesignState = Live
+42:[2026.05.03 19:30:19.655] [Trace] [PrototypePatchManager] Patch Prototype: Missions/Prototypes/Act3/Ch09Asgard/Ambushes/Norway/NorwayFrostGolemsFaeAmbushV3.prototype DesignState = Live
+43:[2026.05.03 19:30:19.672] [Trace] [PrototypePatchManager] Patch Prototype: Loot/Tables/Mob/Bosses/EndgameDailies/Subtables/SharedEndgameDailiesRed.prototype Choices[] = 9518055978027522001
+44:[2026.05.03 19:30:19.672] [Trace] [PrototypePatchManager] Patch Prototype: Loot/Tables/Mob/Bosses/EndgameDailies/Subtables/SharedEndgameDailiesCosmic.prototype Choices[] = 9518055978027522001
+45:[2026.05.03 19:30:19.734] [Trace] [PrototypePatchManager] Patch Prototype: Populations/Clusters/Generic/SelectAct/SelectActGenericWorking.prototype AIOverrides[0] = 3362272330190363532
+46:[2026.05.03 19:30:19.853] [Trace] [PrototypePatchManager] Patch Prototype: Populations/Clusters/Generic/SelectAct/SelectActRunToExitInteract.prototype Rewards[0] = 3451806331797967983
+47:[2026.05.03 19:30:19.856] [Trace] [PrototypePatchManager] Patch Prototype: Entity/Spawners/CH9/NorwayFrostGolemsSpawner.prototype SpawnSequence[1].Count = 0
+48:[2026.05.03 19:30:19.856] [Trace] [PrototypePatchManager] Patch Prototype: Entity/Spawners/CH9/NorwayFrostGolemsSpawner.prototype SpawnSequence[3].Count = 0
+53:[2026.05.03 19:30:19.919] [Trace] [PrototypePatchManager] Patch Prototype: Loot/Tables/MysteryChest/RandomFortuneCardTable.prototype PickMethod = PickWeightTryAll
+54:[2026.05.03 19:30:19.929] [Trace] [PrototypePatchManager] Patch Prototype: Missions/Prototypes/Act3/Ch09Asgard/Controllers/SiegeMissionGiverController.prototype DesignState = NotInGame
+55:[2026.05.03 19:30:19.930] [Trace] [PrototypePatchManager] Patch Prototype: Loot/Tables/Mob/Destructibles/Chapter03Plus/DangerRoomBaseLoot.prototype Choices[] = 9518055978027522001
+56:[2026.05.03 19:30:20.060] [Trace] [PrototypePatchManager] Patch Prototype: Populations/Clusters/Generic/SelectAct/SelectActGenericVendor.prototype AIOverrides[0] = 13070352796777912918
+57:[2026.05.03 19:30:20.316] [Trace] [PrototypePatchManager] Patch Prototype: Resource/Encounters/CH09Norway/OM_ForgottenPyre_Reward.encounter MarkerSet.Markers[1].EncounterSpawnPhase = 0
+58:[2026.05.03 19:30:20.391] [Trace] [CollectionPool`2] Get(): Created a new instance of HashSet`1<PrototypeId> (ThreadId=-1, TotalCount=2)
+63:[2026.05.03 19:30:20.747] [Trace] [PrototypePatchManager] Patch Prototype: Loot/Tables/Test/testAimGunbotSpawnTable.prototype Choices[0].Agent = 17153689258362476876
+64:[2026.05.03 19:30:20.791] [Trace] [PrototypePatchManager] Patch Prototype: Missions/Prototypes/Act0/CH00Raft/Controllers/RaftNPEQuinjetKismetController.prototype ResetsWithRegion = 11602117409128454445
+65:[2026.05.03 19:30:20.791] [Trace] [PrototypePatchManager] Patch Prototype: Missions/Prototypes/Act0/CH00Raft/Controllers/RaftNPEQuinjetKismetController.prototype Version = 2
+66:[2026.05.03 19:30:20.836] [Trace] [PrototypePatchManager] Patch Prototype: Regions/EndGame/TierX/PatrolMidtown/ConnectionTargets/ConnectionNodes/XManhattanToHellsKitchenNode.prototype Target = 17615247274427293857
+67:[2026.05.03 19:30:20.951] [Trace] [PrototypePatchManager] Patch Prototype: Entity/Alliances/Overrides/Controlled.prototype HostileTo[] = MHServerEmu.Games.GameData.PrototypeId[]
+68:[2026.05.03 19:30:21.011] [Trace] [PrototypePatchManager] Patch Prototype: Missions/Prototypes/PVEEndgame/StaticScenarios/AgentsOfSHIELDEvent.prototype DesignState = NotInGame
+69:[2026.05.03 19:30:21.064] [Trace] [PrototypePatchManager] Patch Prototype: Loot/Tables/Mob/NormalMobs/DoopSubTableExtra.prototype Choices[] = 9518055978027522001
+70:[2026.05.03 19:30:21.272] [Trace] [CalligraphySerializer] ParseEnum(): Missing enum member AvatarRing in InventoryConvenienceLabel, field ConvenienceLabel, file name Entity/Inventory/AvatarInventories/Shared/AvatarRing.prototype
+71:[2026.05.03 19:30:21.697] [Trace] [PrototypePatchManager] Patch Prototype: Missions/Prototypes/LegendaryQuests/LQStory/LegendaryCH07DinosaurJungle2.prototype Objectives[2].SuccessConditions.Conditions[0].EntityFilter.Filters[0].EntityPrototype = 16615558941252196555
+72:[2026.05.03 19:30:21.706] [Trace] [PrototypePatchManager] Patch Prototype: Populations/Clusters/Generic/SelectAct/SelectActRunToExitOnInteractThanks.prototype Rewards[0] = 3451806331797967983
+73:[2026.05.03 19:30:21.738] [Trace] [PrototypePatchManager] Patch Prototype: Entity/Items/Insignias/Prototypes/Insignia033.prototype LootDropWeightMultiplier = 1
+74:[2026.05.03 19:30:22.007] [Trace] [PrototypePatchManager] Patch Prototype: Populations/Clusters/Generic/SelectAct/SelectActRunToExitInteractThankFall.prototype Rewards[0] = 3451806331797967983
+76:[2026.05.03 19:30:22.135] [Trace] [PrototypePatchManager] Patch Prototype: Entity/Items/Insignias/Prototypes/Insignia034.prototype LootDropWeightMultiplier = 1
+77:[2026.05.03 19:30:22.592] [Trace] [PrototypePatchManager] Patch Prototype: Populations/Clusters/Generic/SelectAct/SelectActRunToExitPlayerProxDelay5000Rewarded.prototype Rewards[0] = 3451806331797967983
+78:[2026.05.03 19:30:22.759] [Trace] [PrototypePatchManager] Patch Prototype: Missions/Prototypes/Act0/PlayOpening.prototype DesignState = Live
+79:[2026.05.03 19:30:22.788] [Trace] [PrototypePatchManager] Patch Prototype: Entity/Items/Insignias/Prototypes/Insignia032.prototype LootDropWeightMultiplier = 1
+80:[2026.05.03 19:30:22.849] [Trace] [PrototypePatchManager] Patch Prototype: Missions/Prototypes/Story/CH09Asgard/Events/MetaGame/MGForgottenPyre/MGForgottenPyre.prototype Objectives[0].Name = 6053780125440214290
+85:[2026.05.03 19:30:23.378] [Trace] [PrototypePatchManager] Patch Prototype: Populations/Clusters/Generic/SelectAct/SelectActRunToExitClusterClearRewarded.prototype Rewards[0] = 3451806331797967983
+86:[2026.05.03 19:30:23.411] [Trace] [PrototypePatchManager] Patch Prototype: Missions/Prototypes/PVEEndgame/StaticScenarios/XMasGiftXChange.prototype DesignState = NotInGame
+87:[2026.05.03 19:30:23.415] [Trace] [CalligraphySerializer] ParseInt32(): Overflow for Int32 field MinCooldownMS, raw value 99999999999999, file name AI/ProceduralAI/Prototypes/Profiles/Bosses/SurturRaid/SurturPortalProfile.prototype
+88:[2026.05.03 19:30:23.415] [Trace] [CalligraphySerializer] ParseInt32(): Overflow for Int32 field MaxCooldownMS, raw value 99999999999999, file name AI/ProceduralAI/Prototypes/Profiles/Bosses/SurturRaid/SurturPortalProfile.prototype
+89:[2026.05.03 19:30:23.415] [Trace] [CalligraphySerializer] ParseInt32(): Overflow for Int32 field MinCooldownMS, raw value 99999999999999, file name AI/ProceduralAI/Prototypes/Profiles/Bosses/SurturRaid/SurturPortalProfile.prototype
+90:[2026.05.03 19:30:23.415] [Trace] [CalligraphySerializer] ParseInt32(): Overflow for Int32 field MaxCooldownMS, raw value 99999999999999, file name AI/ProceduralAI/Prototypes/Profiles/Bosses/SurturRaid/SurturPortalProfile.prototype
+91:[2026.05.03 19:30:23.415] [Trace] [CalligraphySerializer] ParseInt32(): Overflow for Int32 field MinCooldownMS, raw value 99999999999999, file name AI/ProceduralAI/Prototypes/Profiles/Bosses/SurturRaid/SurturPortalProfile.prototype
+92:[2026.05.03 19:30:23.415] [Trace] [CalligraphySerializer] ParseInt32(): Overflow for Int32 field MaxCooldownMS, raw value 99999999999999, file name AI/ProceduralAI/Prototypes/Profiles/Bosses/SurturRaid/SurturPortalProfile.prototype
+93:[2026.05.03 19:30:23.416] [Trace] [CalligraphySerializer] ParseInt32(): Overflow for Int32 field MinCooldownMS, raw value 99999999999999, file name AI/ProceduralAI/Prototypes/Profiles/Bosses/SurturRaid/SurturPortalProfile.prototype
+94:[2026.05.03 19:30:23.416] [Trace] [CalligraphySerializer] ParseInt32(): Overflow for Int32 field MaxCooldownMS, raw value 99999999999999, file name AI/ProceduralAI/Prototypes/Profiles/Bosses/SurturRaid/SurturPortalProfile.prototype
+95:[2026.05.03 19:30:23.449] [Trace] [PrototypePatchManager] Patch Prototype: Entity/Items/Insignias/Prototypes/Insignia030.prototype LootDropWeightMultiplier = 1
+96:[2026.05.03 19:30:23.504] [Trace] [PrototypePatchManager] Patch Prototype: Resource/Cells/DistrictCells/Avengers_Tower/AvengersTowerNPE_HUB.cell MarkerSet.Markers[27].EntityGuid = 6158563480682235387
+97:[2026.05.03 19:30:23.505] [Trace] [PrototypePatchManager] Patch Prototype: Resource/Cells/DistrictCells/Avengers_Tower/AvengersTowerNPE_HUB.cell MarkerSet.Markers[27].Position = (-694.76, 2003.63, 160.97)
+98:[2026.05.03 19:30:23.506] [Trace] [PrototypePatchManager] Patch Prototype: Resource/Cells/DistrictCells/Avengers_Tower/AvengersTowerNPE_HUB.cell MarkerSet.Markers[28].EntityGuid = 13282508175937904349
+99:[2026.05.03 19:30:23.514] [Trace] [PrototypePatchManager] Patch Prototype: Loot/Tables/Achievements/StarkTechPowerCube.prototype Choices[0].Item = 12620726227893559387
+100:[2026.05.03 19:30:23.515] [Trace] [PrototypePatchManager] Patch Prototype: Missions/Prototypes/Act3/Ch09Asgard/Ambushes/Norway/NorwayFrostGolemsFaeAmbushV2.prototype DesignState = Live
+103:[2026.05.03 19:30:23.659] [Trace] [PrototypePatchManager] Patch Prototype: Missions/Prototypes/Achievements/Challenges/AchievementPunisherMidtownTimed.prototype Objectives[1].Required = False
+104:[2026.05.03 19:30:23.659] [Trace] [PrototypePatchManager] Patch Prototype: Missions/Prototypes/Achievements/Challenges/AchievementPunisherMidtownTimed.prototype Objectives[2].Required = False
+107:[2026.05.03 19:30:23.800] [Trace] [PrototypePatchManager] Patch Prototype: Missions/Prototypes/Story/CH04EastSide/TreasureRooms/CH04TR07Basement.prototype Objectives[0].SuccessConditions.Conditions[0].Region = 3901343846271426331
+108:[2026.05.03 19:30:23.800] [Trace] [PrototypePatchManager] Patch Prototype: Missions/Prototypes/Story/CH04EastSide/TreasureRooms/CH04TR07Basement.prototype Objectives[1].SuccessConditions.Conditions[0].TargetFilter.Filters[0].Keyword = 6870096780498112679
+109:[2026.05.03 19:30:23.867] [Trace] [PrototypePatchManager] Patch Prototype: Entity/Spawners/Mission/TRBonusChestSpawner.prototype SpawnSequence[0].Object.Entity = 9710110594970293035
+110:[2026.05.03 19:30:23.935] [Trace] [PrototypePatchManager] Patch Prototype: Entity/Items/Insignias/Prototypes/Insignia028.prototype LootDropWeightMultiplier = 1
+111:[2026.05.03 19:30:24.023] [Trace] [PrototypePatchManager] Patch Prototype: Entity/Items/Insignias/Prototypes/Insignia024.prototype LootDropWeightMultiplier = 1
+112:[2026.05.03 19:30:24.062] [Trace] [PrototypePatchManager] Patch Prototype: Missions/Prototypes/PVEEndgame/AgeOfUltron/AgeOfUltronKismetController.prototype Objectives[0].OnSuccessActions[1].DelayInSeconds = 12.5
+113:[2026.05.03 19:30:24.171] [Trace] [PrototypePatchManager] Patch Prototype: Missions/Prototypes/Story/CH04EastSide/TreasureRooms/CH04TR05Barber.prototype PopulationSpawns[2].Population.UsePopulationMarker = 17169140681234780994
+114:[2026.05.03 19:30:24.291] [Trace] [PrototypePatchManager] Patch Prototype: Missions/Prototypes/BonusMissions/AccountMissions/PvPBreadcrumb.prototype PrereqConditions.Conditions[0].MissionPrototype = 17539112805425617594
+115:[2026.05.03 19:30:24.371] [ Info] [GameDatabase] Loaded all prototypes in 5612 ms
+116:[2026.05.03 19:30:24.403] [Trace] [CollectionPool`2] Get(): Created a new instance of HashSet`1<PrototypeId> (ThreadId=-1, TotalCount=3)
+132:[2026.05.03 19:30:24.688] [Trace] [LiveTuningManager] Updated Live Tuning Setting on this GIS.  Prototype: Powers/EnemyPowers/Boss/MindlessOneBoss/GroundStomp.prototype  Enumeration: ePTV_PowerDamagePVE Value: 0.3
+133:[2026.05.03 19:30:24.688] [Trace] [LiveTuningManager] Updated Live Tuning Setting on this GIS.  Prototype: Powers/EnemyPowers/AffixPowers/Boss/Inferno/InfernoSummon.prototype  Enumeration: ePTV_PowerEnabled Value: 0
+134:[2026.05.03 19:30:24.688] [Trace] [LiveTuningManager] Updated Live Tuning Setting on this GIS.  Prototype: Powers/EnemyPowers/Boss/LivingLaser/LaserFromAbove.prototype  Enumeration: ePTV_PowerEnabled Value: 0
+135:[2026.05.03 19:30:24.688] [Trace] [LiveTuningManager] Updated Live Tuning Setting on this GIS.  Prototype: Powers/EnemyPowers/MobPowers/SpiderClones/SonicBarrier.prototype  Enumeration: ePTV_PowerEnabled Value: 0
+136:[2026.05.03 19:30:24.688] [Trace] [LiveTuningManager] Updated Live Tuning Setting on this GIS.  Prototype: Powers/EnemyPowers/Boss/OnslaughtRaid/StarktechSentinelBlueThreewayBlastHARDMODE.prototype  Enumeration: ePTV_PowerEnabled Value: 0
+137:[2026.05.03 19:30:24.688] [Trace] [LiveTuningManager] Updated Live Tuning Setting on this GIS.  Prototype: Powers/EnemyPowers/Boss/SurturRaid/MistressOfMagma/SurturMoMBombDanceExplosion.prototype  Enumeration: ePTV_PowerDamagePVE Value: 0.5
+138:[2026.05.03 19:30:24.688] [Trace] [LiveTuningManager] Updated Live Tuning Setting on this GIS.  Prototype: Powers/ItemPowers/ConsumablePowers/LunarEnvelopeDrop.prototype  Enumeration: ePTV_PowerDamagePVE Value: 0
+139:[2026.05.03 19:30:24.688] [Trace] [LiveTuningManager] Updated Live Tuning Setting on this GIS.  Prototype: Powers/EnemyPowers/Boss/MindlessOneBoss/ChargedLaserHotspotEffect.prototype  Enumeration: ePTV_PowerDamagePVE Value: 0.7
+140:[2026.05.03 19:30:24.688] [Trace] [LiveTuningManager] Updated Live Tuning Setting on this GIS.  Prototype: Powers/EnemyPowers/Boss/GreenGoblin/PumpkinBarrage.prototype  Enumeration: ePTV_PowerEnabled Value: 0
+141:[2026.05.03 19:30:24.688] [Trace] [LiveTuningManager] Updated Live Tuning Setting on this GIS.  Prototype: Regions/EndGame/StaticScenarios/CivilWar/Airport/CivilWarAirportCaptainAmericaRegionBand.prototype  Enumeration: eRTV_Enabled Value: 0
+142:[2026.05.03 19:30:24.688] [Trace] [LiveTuningManager] Updated Live Tuning Setting on this GIS.  Prototype: Regions/HUBS/CivilWarHUBs/CivilWarHubCaptainAmericaWarehouseRegion.prototype  Enumeration: eRTV_Enabled Value: 0
+143:[2026.05.03 19:30:24.688] [Trace] [LiveTuningManager] Updated Live Tuning Setting on this GIS.  Prototype: Regions/EndGame/StaticScenarios/CivilWar/Bazaar/AltRegions/CivilWarBazaarRegion60Cosmic.prototype  Enumeration: eRTV_Enabled Value: 0
+144:[2026.05.03 19:30:24.688] [Trace] [LiveTuningManager] Updated Live Tuning Setting on this GIS.  Prototype: Regions/EndGame/TierX/Limbo/AltRegions/LimboRegionL60.prototype  Enumeration: eRT_BonusItemFindMultiplier Value: 10
+145:[2026.05.03 19:30:24.688] [Trace] [LiveTuningManager] Updated Live Tuning Setting on this GIS.  Prototype: Regions/EndGame/StaticScenarios/CivilWar/Airport/AltRegions/AirportCap/CivilWarAirportCaptainAmericaRegion60Cosmic.prototype  Enumeration: eRTV_Enabled Value: 0
+146:[2026.05.03 19:30:24.688] [Trace] [LiveTuningManager] Updated Live Tuning Setting on this GIS.  Prototype: Regions/EndGame/StaticScenarios/CivilWar/Bazaar/CivilWarBazaarRegionBand.prototype  Enumeration: eRTV_Enabled Value: 0
+147:[2026.05.03 19:30:24.688] [Trace] [LiveTuningManager] Updated Live Tuning Setting on this GIS.  Prototype: Regions/HUBS/CivilWarHUBs/CivilWarHubIronManAvengersRoofRegion.prototype  Enumeration: eRTV_Enabled Value: 0
+148:[2026.05.03 19:30:24.688] [Trace] [LiveTuningManager] Updated Live Tuning Setting on this GIS.  Prototype: Regions/Story/CH03Madripoor/LowTown/Safehouse/SafehouseRegion.prototype  Enumeration: eRTV_PlayerLimit Value: 0.75
+149:[2026.05.03 19:30:24.688] [Trace] [LiveTuningManager] Updated Live Tuning Setting on this GIS.  Prototype: Regions/EndGame/StaticScenarios/CivilWar/Airport/CivilWarAirportIronManRegionBand.prototype  Enumeration: eRTV_Enabled Value: 0
+150:[2026.05.03 19:30:24.688] [Trace] [LiveTuningManager] Updated Live Tuning Setting on this GIS.  Prototype: Regions/EndGame/DangerRoomMode/UniqueScenarios/Tutorial/DRRegionUniqueTutorialFight.prototype  Enumeration: eRT_BonusItemFindMultiplier Value: 0
+151:[2026.05.03 19:30:24.688] [Trace] [LiveTuningManager] Updated Live Tuning Setting on this GIS.  Prototype: Regions/EndGame/TierX/UltronGameMode/UltronRaidRegionCosmic.prototype  Enumeration: eRTV_Enabled Value: 0
+152:[2026.05.03 19:30:24.688] [Trace] [LiveTuningManager] Updated Live Tuning Setting on this GIS.  Prototype: Regions/EndGame/StaticScenarios/CivilWar/Airport/AltRegions/AirportIronMan/CivilWarAirportIronManRegion60Cosmic.prototype  Enumeration: eRTV_Enabled Value: 0
+153:[2026.05.03 19:30:24.688] [Trace] [LiveTuningManager] Updated Live Tuning Setting on this GIS.  Prototype: Regions/RAIDS/AxisRaid/AxisRaidRegionRed.prototype  Enumeration: eRTV_Enabled Value: 0
+154:[2026.05.03 19:30:24.689] [Trace] [LiveTuningManager] Updated Live Tuning Setting on this GIS.  Prototype: Loot/Tables/Events/Anniversary2017Loot.prototype  Enumeration: eLTTV_Enabled Value: 0
+155:[2026.05.03 19:30:24.689] [Trace] [LiveTuningManager] Updated Live Tuning Setting on this GIS.  Prototype: Events/PublicEvents/Events/CivilWar.prototype  Enumeration: ePETV_Enabled Value: 0
+156:[2026.05.03 19:30:24.689] [Trace] [LiveTuningManager] Updated Live Tuning Setting on this GIS.  Prototype: Events/PublicEvents/Events/CivilWar.prototype  Enumeration: ePETV_EventInstance Value: 14
+157:[2026.05.03 19:30:24.690] [Trace] [LiveTuningManager] Updated Live Tuning Setting on this GIS.  Prototype: Missions/Prototypes/PVEEndgame/Controllers/DoomFightDailyKismetControl.prototype  Enumeration: eMTV_Enabled Value: 0
+158:[2026.05.03 19:30:24.691] [Trace] [LiveTuningManager] Updated Live Tuning Setting on this GIS.  Prototype: GLOBAL  Enumeration: eGTV_VendorBuyPrice Value: 1
+159:[2026.05.03 19:30:24.691] [Trace] [LiveTuningManager] Updated Live Tuning Setting on this GIS.  Prototype: GLOBAL  Enumeration: eGTV_VendorSellPrice Value: 1
+160:[2026.05.03 19:30:24.691] [Trace] [LiveTuningManager] Updated Live Tuning Setting on this GIS.  Prototype: GLOBAL  Enumeration: eGTV_VendorXPGain Value: 1
+161:[2026.05.03 19:30:24.691] [Trace] [LiveTuningManager] Updated Live Tuning Setting on this GIS.  Prototype: GLOBAL  Enumeration: eGTV_PVPEnabled Value: 0
+162:[2026.05.03 19:30:24.691] [Trace] [LiveTuningManager] Updated Live Tuning Setting on this GIS.  Prototype: GLOBAL  Enumeration: eGTV_XPGain Value: 1
+163:[2026.05.03 19:30:24.691] [Trace] [LiveTuningManager] Updated Live Tuning Setting on this GIS.  Prototype: GLOBAL  Enumeration: eGTV_LootDropRate Value: 1
+164:[2026.05.03 19:30:24.691] [Trace] [LiveTuningManager] Updated Live Tuning Setting on this GIS.  Prototype: GLOBAL  Enumeration: eGTV_LootSpecialDropRate Value: 1
+165:[2026.05.03 19:30:24.691] [Trace] [LiveTuningManager] Updated Live Tuning Setting on this GIS.  Prototype: GLOBAL  Enumeration: eGTV_LootRarity Value: 1
+166:[2026.05.03 19:30:24.691] [Trace] [LiveTuningManager] Updated Live Tuning Setting on this GIS.  Prototype: GLOBAL  Enumeration: eGTV_PartyXPBonusPct Value: 1
+167:[2026.05.03 19:30:24.691] [Trace] [LiveTuningManager] Updated Live Tuning Setting on this GIS.  Prototype: GLOBAL  Enumeration: eGTV_PlayerTradeEnabled Value: 1
+168:[2026.05.03 19:30:24.691] [Trace] [LiveTuningManager] Updated Live Tuning Setting on this GIS.  Prototype: GLOBAL  Enumeration: eGTV_CosmicPrestigeXPPct Value: 1
+169:[2026.05.03 19:30:24.691] [Trace] [LiveTuningManager] Updated Live Tuning Setting on this GIS.  Prototype: GLOBAL  Enumeration: eGTV_LootVaporizationEnabled Value: 1
+170:[2026.05.03 19:30:24.691] [Trace] [LiveTuningManager] Updated Live Tuning Setting on this GIS.  Prototype: GLOBAL  Enumeration: eGTV_XPBuffDisplay Value: 1
+171:[2026.05.03 19:30:24.691] [Trace] [LiveTuningManager] Updated Live Tuning Setting on this GIS.  Prototype: GLOBAL  Enumeration: eGTV_SIFBuffDisplay Value: 1
+172:[2026.05.03 19:30:24.691] [Trace] [LiveTuningManager] Updated Live Tuning Setting on this GIS.  Prototype: GLOBAL  Enumeration: eGTV_RIFBuffDisplay Value: 1
+173:[2026.05.03 19:30:24.691] [Trace] [LiveTuningManager] Updated Live Tuning Setting on this GIS.  Prototype: GLOBAL  Enumeration: eGTV_OmegaXPPct Value: 1
+174:[2026.05.03 19:30:24.691] [Trace] [LiveTuningManager] Updated Live Tuning Setting on this GIS.  Prototype: GLOBAL  Enumeration: eGTV_RespectLevelForGlobalXP Value: 1
+175:[2026.05.03 19:30:24.691] [Trace] [LiveTuningManager] Updated Live Tuning Setting on this GIS.  Prototype: GLOBAL  Enumeration: eGTV_RespectLevelForGlobalRIF Value: 1
+176:[2026.05.03 19:30:24.691] [Trace] [LiveTuningManager] Updated Live Tuning Setting on this GIS.  Prototype: GLOBAL  Enumeration: eGTV_RespectLevelForGlobalSIF Value: 1
+177:[2026.05.03 19:30:24.691] [Trace] [LiveTuningManager] Updated Live Tuning Setting on this GIS.  Prototype: GLOBAL  Enumeration: eGTV_RespectLevelForOmegaXP Value: 1
+178:[2026.05.03 19:30:24.691] [Trace] [LiveTuningManager] Updated Live Tuning Setting on this GIS.  Prototype: GLOBAL  Enumeration: eGTV_RespectLevelForAvatarXP Value: 1
+179:[2026.05.03 19:30:24.691] [Trace] [LiveTuningManager] Updated Live Tuning Setting on this GIS.  Prototype: GLOBAL  Enumeration: eGTV_RespectLevelForRegionXP Value: 1
+180:[2026.05.03 19:30:24.691] [Trace] [LiveTuningManager] Updated Live Tuning Setting on this GIS.  Prototype: GLOBAL  Enumeration: eGTV_ServerBonusUnlockLevelOverride Value: 0
+181:[2026.05.03 19:30:24.691] [Trace] [LiveTuningManager] Updated Live Tuning Setting on this GIS.  Prototype: GLOBAL  Enumeration: eGTV_BoostTimersRunning Value: 1
+182:[2026.05.03 19:30:24.691] [Trace] [LiveTuningManager] Updated Live Tuning Setting on this GIS.  Prototype: GLOBAL  Enumeration: eGTV_InfinityXPPct Value: 1
+183:[2026.05.03 19:30:24.691] [Trace] [LiveTuningManager] Updated Live Tuning Setting on this GIS.  Prototype: GLOBAL  Enumeration: eGTV_RespectLevelForInfinityXP Value: 1
+184:[2026.05.03 19:30:24.691] [Trace] [LiveTuningManager] Updated Live Tuning Setting on this GIS.  Prototype: Entity/Characters/Mobs/PvP/Defenders/PvPGuardianBlue.prototype  Enumeration: eWETV_MobHealth Value: 15
+185:[2026.05.03 19:30:24.691] [Trace] [LiveTuningManager] Updated Live Tuning Setting on this GIS.  Prototype: Entity/Characters/Mobs/PvP/Defenders/PvPGuardianRed.prototype  Enumeration: eWETV_MobHealth Value: 15
+186:[2026.05.03 19:30:24.691] [Trace] [LiveTuningManager] Updated Live Tuning Setting on this GIS.  Prototype: Entity/Characters/Mobs/PvP/Turrets/DefenderPvPArcherBlueInner.prototype  Enumeration: eWETV_MobHealth Value: 15
+187:[2026.05.03 19:30:24.691] [Trace] [LiveTuningManager] Updated Live Tuning Setting on this GIS.  Prototype: Entity/Characters/Mobs/PvP/Turrets/DefenderPvPArcherRedInner.prototype  Enumeration: eWETV_MobHealth Value: 15
+188:[2026.05.03 19:30:24.691] [Trace] [LiveTuningManager] Updated Live Tuning Setting on this GIS.  Prototype: Entity/Characters/Mobs/PvP/Turrets/DefenderPvPArcherBlueMiddle.prototype  Enumeration: eWETV_MobHealth Value: 15
+189:[2026.05.03 19:30:24.692] [Trace] [LiveTuningManager] Updated Live Tuning Setting on this GIS.  Prototype: Entity/Characters/Mobs/PvP/Turrets/DefenderPvPArcherRedMiddle.prototype  Enumeration: eWETV_MobHealth Value: 15
+190:[2026.05.03 19:30:24.692] [Trace] [LiveTuningManager] Updated Live Tuning Setting on this GIS.  Prototype: Entity/Characters/Mobs/PvP/Turrets/DefenderPvPArcherBlueOuter.prototype  Enumeration: eWETV_MobHealth Value: 15
+191:[2026.05.03 19:30:24.692] [Trace] [LiveTuningManager] Updated Live Tuning Setting on this GIS.  Prototype: Entity/Characters/Mobs/PvP/Turrets/DefenderPvPArcherRedOuter.prototype  Enumeration: eWETV_MobHealth Value: 15
+202:[2026.05.03 19:30:24.799] [ Info] [ServerManager] Registered service for type [PlayerManager]
+216:[2026.05.03 19:30:24.815] [ Info] [ServerManager] Starting service for type [PlayerManager]...
+221:[2026.05.03 19:30:24.839] [Trace] [RegionRequestQueueManager] Initialized region request queue for Regions/RAIDS/MuspelheimRaid/SurturRaidRegionGreen.prototype
+222:[2026.05.03 19:30:24.839] [Trace] [RegionRequestQueueManager] Initialized region request queue for Regions/RAIDS/MuspelheimRaid/SurturRaidRegionBand.prototype
+223:[2026.05.03 19:30:24.839] [Trace] [RegionRequestQueueManager] Initialized region request queue for Regions/EndGame/TierX/HoloSim/AltRegions/HoloSimARegion1to60.prototype
+224:[2026.05.03 19:30:24.839] [Trace] [RegionRequestQueueManager] Initialized region request queue for Regions/EndGame/TierX/HoloSim/HoloSimARegionBand.prototype
+225:[2026.05.03 19:30:24.839] [Trace] [RegionRequestQueueManager] Initialized region request queue for Regions/ZZZUNUSED/Challenges/LimboRegionL25.prototype
+226:[2026.05.03 19:30:24.839] [Trace] [RegionRequestQueueManager] Initialized region request queue for Regions/ZZZUNUSED/Challenges/LimboRegionL50.prototype
+227:[2026.05.03 19:30:24.839] [Trace] [RegionRequestQueueManager] Initialized region request queue for Regions/ZZZUNUSED/Challenges/LimboRegionL10.prototype
+228:[2026.05.03 19:30:24.839] [Trace] [RegionRequestQueueManager] Initialized region request queue for Regions/EndGame/TierX/XDefense/AltRegions/XmansionNWSRegion30.prototype
+229:[2026.05.03 19:30:24.839] [Trace] [RegionRequestQueueManager] Initialized region request queue for Regions/RAIDS/AxisRaid/AxisRaidRegionBand.prototype
+230:[2026.05.03 19:30:24.839] [Trace] [RegionRequestQueueManager] Initialized region request queue for Regions/EndGame/TierX/Limbo/LimboRegionBand.prototype
+231:[2026.05.03 19:30:24.839] [Trace] [RegionRequestQueueManager] Initialized region request queue for Regions/EndGame/TierX/Limbo/AltRegions/LimboRegionL60.prototype
+232:[2026.05.03 19:30:24.839] [Trace] [RegionRequestQueueManager] Initialized region request queue for Regions/EndGame/TierX/XDefense/AltRegions/XmansionNWSRegion40.prototype
+233:[2026.05.03 19:30:24.839] [Trace] [RegionRequestQueueManager] Initialized region request queue for Regions/ZZZUNUSED/Challenges/LimboRegionL20.prototype
+234:[2026.05.03 19:30:24.839] [Trace] [RegionRequestQueueManager] Initialized region request queue for Regions/ZZZUNUSED/Challenges/LimboRegionL55.prototype
+235:[2026.05.03 19:30:24.839] [Trace] [RegionRequestQueueManager] Initialized region request queue for Regions/ZZZUNUSED/Challenges/LimboRegionL15.prototype
+236:[2026.05.03 19:30:24.839] [Trace] [RegionRequestQueueManager] Initialized region request queue for Regions/RAIDS/AxisRaid/AxisRaidRegionTEST.prototype
+237:[2026.05.03 19:30:24.839] [Trace] [RegionRequestQueueManager] Initialized region request queue for Metagame/DefenderPvP/Regions/PvPDefenderTier3Region.prototype
+238:[2026.05.03 19:30:24.839] [Trace] [RegionRequestQueueManager] Initialized region request queue for Regions/RAIDS/ThanosRaid/ThanosRaidRegionBand.prototype
+239:[2026.05.03 19:30:24.839] [Trace] [RegionRequestQueueManager] Initialized region request queue for Regions/EndGame/TierX/UltronGameMode/UltronRaidRegionBand.prototype
+240:[2026.05.03 19:30:24.839] [Trace] [RegionRequestQueueManager] Initialized region request queue for Metagame/NexusPvP/Regions/NexusPvPRegion.prototype
+241:[2026.05.03 19:30:24.839] [Trace] [RegionRequestQueueManager] Initialized region request queue for Metagame/DefenderPvP/Regions/PvPDefenderTier4Region.prototype
+242:[2026.05.03 19:30:24.839] [Trace] [RegionRequestQueueManager] Initialized region request queue for Regions/EndGame/TierX/XDefense/AltRegions/XmansionNWSRegion01.prototype
+243:[2026.05.03 19:30:24.840] [Trace] [RegionRequestQueueManager] Initialized region request queue for Regions/RAIDS/MuspelheimRaid/SurturRaidRegionRed.prototype
+244:[2026.05.03 19:30:24.840] [Trace] [RegionRequestQueueManager] Initialized region request queue for Metagame/DefenderPvP/Regions/PvPDefenderTier1Region.prototype
+245:[2026.05.03 19:30:24.840] [Trace] [RegionRequestQueueManager] Initialized region request queue for Regions/RAIDS/AxisRaid/AxisRaidRegionGreen.prototype
+246:[2026.05.03 19:30:24.840] [Trace] [RegionRequestQueueManager] Initialized region request queue for Regions/EndGame/TierX/HoloSim/AltRegions/HoloSimARegion60.prototype
+247:[2026.05.03 19:30:24.840] [Trace] [RegionRequestQueueManager] Initialized region request queue for Regions/EndGame/TierX/XDefense/AltRegions/XmansionNWSRegion60Cosmic.prototype
+248:[2026.05.03 19:30:24.840] [Trace] [RegionRequestQueueManager] Initialized region request queue for Regions/EndGame/TierX/UltronGameMode/UltronRaidRegionGreen.prototype
+249:[2026.05.03 19:30:24.840] [Trace] [RegionRequestQueueManager] Initialized region request queue for Regions/EndGame/TierX/XDefense/XmansionNWSRegionBand.prototype
+250:[2026.05.03 19:30:24.840] [Trace] [RegionRequestQueueManager] Initialized region request queue for Regions/EndGame/TierX/XDefense/AltRegions/XmansionNWSRegion20.prototype
+251:[2026.05.03 19:30:24.840] [Trace] [RegionRequestQueueManager] Initialized region request queue for Regions/EndGame/TierX/XDefense/AltRegions/XmansionNWSRegion60.prototype
+252:[2026.05.03 19:30:24.840] [Trace] [RegionRequestQueueManager] Initialized region request queue for Regions/EndGame/TierX/HoloSim/AltRegions/Deprecate/HoloSimARegion60Cosmic.prototype
+253:[2026.05.03 19:30:24.840] [Trace] [RegionRequestQueueManager] Initialized region request queue for Regions/ZZZUNUSED/Challenges/LimboRegionL35.prototype
+254:[2026.05.03 19:30:24.840] [Trace] [RegionRequestQueueManager] Initialized region request queue for Regions/ZZZUNUSED/Challenges/LimboRegionL40.prototype
+255:[2026.05.03 19:30:24.840] [Trace] [RegionRequestQueueManager] Initialized region request queue for Regions/EndGame/TierX/UltronGameMode/UltronRaidRegionCosmic.prototype
+256:[2026.05.03 19:30:24.840] [Trace] [RegionRequestQueueManager] Initialized region request queue for Regions/ZZZUNUSED/Challenges/LimboRegionL30.prototype
+257:[2026.05.03 19:30:24.840] [Trace] [RegionRequestQueueManager] Initialized region request queue for Regions/ZZZUNUSED/Challenges/LimboRegionL45.prototype
+258:[2026.05.03 19:30:24.840] [Trace] [RegionRequestQueueManager] Initialized region request queue for Metagame/DefenderPvP/Regions/PvPDefenderTier2Region.prototype
+259:[2026.05.03 19:30:24.840] [Trace] [RegionRequestQueueManager] Initialized region request queue for Regions/EndGame/TierX/XDefense/AltRegions/XmansionNWSRegion50.prototype
+260:[2026.05.03 19:30:24.840] [Trace] [RegionRequestQueueManager] Initialized region request queue for Regions/EndGame/TierX/XDefense/AltRegions/XmansionNWSRegion10.prototype
+261:[2026.05.03 19:30:24.840] [Trace] [RegionRequestQueueManager] Initialized region request queue for Regions/RAIDS/ThanosRaid/ThanosRaidRegionGreen.prototype
+262:[2026.05.03 19:30:24.840] [Trace] [RegionRequestQueueManager] Initialized region request queue for Regions/RAIDS/AxisRaid/AxisRaidRegionRed.prototype
+263:[2026.05.03 19:30:24.840] [Trace] [RegionRequestQueueManager] Initialized region request queue for Regions/EndGame/TierX/XDefense/AltRegions/XmansionNWSRegionUnbanded.prototype
+264:[2026.05.03 19:30:24.840] [Trace] [RegionRequestQueueManager] Initialized region request queue for Regions/RAIDS/MuspelheimRaid/SurturReduxRegionBase.prototype
+265:[2026.05.03 19:30:24.840] [Trace] [RegionRequestQueueManager] Initialized region request queue for Metagame/DefenderPvP/Regions/PvPDefenderTier5Region.prototype
+266:[2026.05.03 19:30:24.841] [ Info] [ServerManager] Service for type [PlayerManager] started
+276:[2026.05.03 19:30:30.192] [Trace] [ProtobufWebHandler] Received PrecacheHeaders message
+277:[2026.05.03 19:30:40.798] [ Info] [ProtobufWebHandler] Sending AuthTicket for SessionId 0x300069F7DAA00001 to the game client on 0x0B87B14A, machineId=123b0cf8f9d96fa346cadf7f04d5321cd4328864
+283:[2026.05.03 19:30:40.868] [Trace] [PlayerManagerService] Received NetMessageReadyForGameJoin from client [Account=TruSkillzzz (0x200069CC36410007), SessionId=0x300069F7DAA00001]
+284:[2026.05.03 19:30:41.003] [ Info] [ClientManager] Created new PlayerHandle: [(1) Account=TruSkillzzz (0x200069CC36410007), SessionId=0x300069F7DAA00001]
+285:[2026.05.03 19:30:41.017] [ Info] [PlayerHandle] Loaded player data for account [TruSkillzzz (0x200069CC36410007)] from the database
+291:[2026.05.03 19:30:41.035] [ Info] [Game] Game 0x400069F7DAA10001 started, initial replication id: 53665
+292:[2026.05.03 19:30:41.040] [ Info] [PlayerHandle] Player [(1) Account=TruSkillzzz (0x200069CC36410007), SessionId=0x300069F7DAA00001] beginning region transfer 1
+294:[2026.05.03 19:30:41.041] [Trace] [RegionHandle] AddPlayer(): [[0x100069F7DAA10001] KnowhereHUBRegion (Tier1Normal)] - [(1) Account=TruSkillzzz (0x200069CC36410007), SessionId=0x300069F7DAA00001]
+300:[2026.05.03 19:30:41.191] [ Info] [RegionManager] Generating region Regions/HUBS/KnowhereHUB/KnowhereHUBRegion.prototype...
+302:[2026.05.03 19:30:41.217] [Trace] [CollectionPool`2] Get(): Created a new instance of List`1<PlayerConnection> (ThreadId=6, TotalCount=1)
+303:[2026.05.03 19:30:41.218] [Trace] [CollectionPool`2] Get(): Created a new instance of List`1<Player> (ThreadId=6, TotalCount=1)
+306:[2026.05.03 19:30:41.243] [Trace] [ObjectPool] Get<T>(): Created a new instance of PropertyCollection (ThreadId=6, TotalCount=1)
+307:[2026.05.03 19:30:41.282] [Trace] [ObjectPool] Get<T>(): Created a new instance of PropertyCollection (ThreadId=6, TotalCount=2)
+326:[2026.05.03 19:30:41.451] [ Info] [PlayerHandle] Requesting to add player [(1) Account=TruSkillzzz (0x200069CC36410007), SessionId=0x300069F7DAA00001] to game [0x400069F7DAA10001]
+333:[2026.05.03 19:30:41.629] [Trace] [CollectionPool`2] Get(): Created a new instance of List`1<PrototypeId> (ThreadId=6, TotalCount=1)
+335:[2026.05.03 19:30:41.657] [Trace] [CollectionPool`2] Get(): Created a new instance of List`1<AffixEntryPrototype> (ThreadId=6, TotalCount=1)
+336:[2026.05.03 19:30:41.668] [Trace] [ObjectPool] Get<T>(): Created a new instance of PropertyCollection (ThreadId=6, TotalCount=3)
+338:[2026.05.03 19:30:41.687] [ Info] [PlayerConnectionManager] Accepted and registered client [Account=TruSkillzzz (0x200069CC36410007), SessionId=0x300069F7DAA00001] to game [serverGameId=0x400069F7DAA10001]
+339:[2026.05.03 19:30:41.750] [ Info] [PlayerHandle] Player [(1) Account=TruSkillzzz (0x200069CC36410007), SessionId=0x300069F7DAA00001] added to game [0x400069F7DAA10001]
+340:[2026.05.03 19:30:41.829] [Trace] [CollectionPool`2] Get(): Created a new instance of HashSet`1<PrototypeId> (ThreadId=6, TotalCount=1)
+342:[2026.05.03 19:30:41.867] [Trace] [Region] OnAddedToAOI(): Regions/HUBS/KnowhereHUB/KnowhereHUBRegion.prototype, ID=0x100069F7DAA10001 (1153038017852669953), DIFF=Tier1Normal[60], SEED=941281537, GAMEID=serverGameId=0x400069F7DAA10001 to TruSkillzzz (entityId=6, dbGuid=0x200069CC36410007)
+344:[2026.05.03 19:30:41.874] [Trace] [CollectionPool`2] Get(): Created a new instance of HashSet`1<Player> (ThreadId=6, TotalCount=1)
+345:[2026.05.03 19:30:41.899] [Trace] [PlayerHandle] SetDifficultyTierPreference(): player=[(1) Account=TruSkillzzz (0x200069CC36410007), SessionId=0x300069F7DAA00001], difficulty=[Tier3Superheroic]
+353:[2026.05.03 19:30:42.055] [ Info] [PlayerHandle] Player [(1) Account=TruSkillzzz (0x200069CC36410007), SessionId=0x300069F7DAA00001] finished region transfer 1
+355:[2026.05.03 19:30:43.081] [Trace] [Player] EnableCurrentAvatar(): [Id=32, Prototype=Entity/Characters/Avatars/Shipping/Thor.prototype, Player=TruSkillzzz (0x200069CC36410007)] entering world in region [Regions/HUBS/KnowhereHUB/KnowhereHUBRegion.prototype, ID=0x100069F7DAA10001 (1153038017852669953), DIFF=Tier1Normal[60], SEED=941281537, GAMEID=serverGameId=0x400069F7DAA10001]
+359:[2026.05.03 19:30:43.161] [Trace] [CollectionPool`2] Get(): Created a new instance of List`1<PrototypeId> (ThreadId=6, TotalCount=2)
+362:[2026.05.03 19:30:43.254] [Trace] [CollectionPool`2] Get(): Created a new instance of List`1<PlayerConnection> (ThreadId=6, TotalCount=2)
+366:[2026.05.03 19:30:43.296] [Trace] [CollectionPool`2] Get(): Created a new instance of List`1<PrototypeId> (ThreadId=6, TotalCount=3)
+372:[2026.05.03 19:30:50.276] [ Info] [PlayerHandle] Requesting to remove player [(1) Account=TruSkillzzz (0x200069CC36410007), SessionId=0x300069F7DAA00001] from game 0x400069F7DAA10001
+378:[2026.05.03 19:30:50.329] [Trace] [CollectionPool`2] Get(): Created a new instance of List`1<PropertyTicker> (ThreadId=6, TotalCount=1)
+380:[2026.05.03 19:30:50.357] [Trace] [PlayerConnection] Saved player data for TruSkillzzz (0x200069CC36410007) in 10 ms
+381:[2026.05.03 19:30:50.358] [Trace] [Region] OnRemovedFromAOI(): Regions/HUBS/KnowhereHUB/KnowhereHUBRegion.prototype, ID=0x100069F7DAA10001 (1153038017852669953), DIFF=Tier1Normal[60], SEED=941281537, GAMEID=serverGameId=0x400069F7DAA10001 from TruSkillzzz (entityId=6, dbGuid=0x200069CC36410007)
+383:[2026.05.03 19:30:50.386] [ Info] [PlayerConnection] Removed frontend client [Account=TruSkillzzz (0x200069CC36410007), SessionId=0x300069F7DAA00001] from game [serverGameId=0x400069F7DAA10001]
+384:[2026.05.03 19:30:50.423] [ Info] [PlayerHandle] Player [(1) Account=TruSkillzzz (0x200069CC36410007), SessionId=0x300069F7DAA00001] removed from game 0x400069F7DAA10001
+386:[2026.05.03 19:30:50.564] [ Info] [SQLiteDBManager] Successfully written player data for account [TruSkillzzz (0x200069CC36410007)]
+387:[2026.05.03 19:30:50.713] [ Info] [PlayerHandle] Saved player data for account [TruSkillzzz (0x200069CC36410007)] to the database
+388:[2026.05.03 19:30:50.714] [ Info] [ClientManager] Removed PlayerHandle [(1) Account=TruSkillzzz (0x200069CC36410007), SessionId=0x300069F7DAA00001]
+389:[2026.05.03 19:30:50.715] [Trace] [RegionHandle] RemovePlayer(): [[0x100069F7DAA10001] KnowhereHUBRegion (Tier1Normal)] - [(1) Account=TruSkillzzz (0x200069CC36410007), SessionId=0x300069F7DAA00001]
+391:[2026.05.03 19:32:00.430] [Trace] [ProtobufWebHandler] Received PrecacheHeaders message
+392:[2026.05.03 19:32:10.742] [ Info] [ProtobufWebHandler] Sending AuthTicket for SessionId 0x300069F7DAFA0002 to the game client on 0x0B87B14A, machineId=123b0cf8f9d96fa346cadf7f04d5321cd4328864
+398:[2026.05.03 19:32:10.893] [Trace] [PlayerManagerService] Received NetMessageReadyForGameJoin from client [Account=TruSkillzzz (0x200069CC36410007), SessionId=0x300069F7DAFA0002]
+399:[2026.05.03 19:32:11.041] [ Info] [ClientManager] Created new PlayerHandle: [(2) Account=TruSkillzzz (0x200069CC36410007), SessionId=0x300069F7DAFA0002]
+400:[2026.05.03 19:32:11.045] [ Info] [PlayerHandle] Loaded player data for account [TruSkillzzz (0x200069CC36410007)] from the database
+402:[2026.05.03 19:32:11.045] [ Info] [PlayerHandle] Player [(2) Account=TruSkillzzz (0x200069CC36410007), SessionId=0x300069F7DAFA0002] beginning region transfer 2
+403:[2026.05.03 19:32:11.046] [Trace] [RegionHandle] AddPlayer(): [[0x100069F7DAA10001] KnowhereHUBRegion (Tier1Normal)] - [(2) Account=TruSkillzzz (0x200069CC36410007), SessionId=0x300069F7DAFA0002]
+404:[2026.05.03 19:32:11.046] [ Info] [PlayerHandle] Requesting to add player [(2) Account=TruSkillzzz (0x200069CC36410007), SessionId=0x300069F7DAFA0002] to game [0x400069F7DAA10001]
+407:[2026.05.03 19:32:11.066] [ Info] [PlayerConnectionManager] Accepted and registered client [Account=TruSkillzzz (0x200069CC36410007), SessionId=0x300069F7DAFA0002] to game [serverGameId=0x400069F7DAA10001]
+409:[2026.05.03 19:32:11.191] [ Info] [PlayerHandle] Player [(2) Account=TruSkillzzz (0x200069CC36410007), SessionId=0x300069F7DAFA0002] added to game [0x400069F7DAA10001]
+410:[2026.05.03 19:32:11.215] [Trace] [Region] OnAddedToAOI(): Regions/HUBS/KnowhereHUB/KnowhereHUBRegion.prototype, ID=0x100069F7DAA10001 (1153038017852669953), DIFF=Tier1Normal[60], SEED=941281537, GAMEID=serverGameId=0x400069F7DAA10001 to TruSkillzzz (entityId=215, dbGuid=0x200069CC36410007)
+411:[2026.05.03 19:32:11.340] [Trace] [PlayerHandle] SetDifficultyTierPreference(): player=[(2) Account=TruSkillzzz (0x200069CC36410007), SessionId=0x300069F7DAFA0002], difficulty=[Tier3Superheroic]
+412:[2026.05.03 19:32:11.341] [ Info] [PlayerHandle] Player [(2) Account=TruSkillzzz (0x200069CC36410007), SessionId=0x300069F7DAFA0002] finished region transfer 2
+414:[2026.05.03 19:32:12.229] [Trace] [Player] EnableCurrentAvatar(): [Id=241, Prototype=Entity/Characters/Avatars/Shipping/Thor.prototype, Player=TruSkillzzz (0x200069CC36410007)] entering world in region [Regions/HUBS/KnowhereHUB/KnowhereHUBRegion.prototype, ID=0x100069F7DAA10001 (1153038017852669953), DIFF=Tier1Normal[60], SEED=941281537, GAMEID=serverGameId=0x400069F7DAA10001]
+418:[2026.05.03 19:32:17.174] [ Info] [PlayerHandle] Requesting to remove player [(2) Account=TruSkillzzz (0x200069CC36410007), SessionId=0x300069F7DAFA0002] from game 0x400069F7DAA10001
+421:[2026.05.03 19:32:17.202] [Trace] [PlayerConnection] Saved player data for TruSkillzzz (0x200069CC36410007) in 1 ms
+422:[2026.05.03 19:32:17.202] [Trace] [Region] OnRemovedFromAOI(): Regions/HUBS/KnowhereHUB/KnowhereHUBRegion.prototype, ID=0x100069F7DAA10001 (1153038017852669953), DIFF=Tier1Normal[60], SEED=941281537, GAMEID=serverGameId=0x400069F7DAA10001 from TruSkillzzz (entityId=215, dbGuid=0x200069CC36410007)
+423:[2026.05.03 19:32:17.203] [ Info] [PlayerConnection] Removed frontend client [Account=TruSkillzzz (0x200069CC36410007), SessionId=0x300069F7DAFA0002] from game [serverGameId=0x400069F7DAA10001]
+424:[2026.05.03 19:32:17.324] [ Info] [PlayerHandle] Player [(2) Account=TruSkillzzz (0x200069CC36410007), SessionId=0x300069F7DAFA0002] removed from game 0x400069F7DAA10001
+425:[2026.05.03 19:32:17.463] [ Info] [SQLiteDBManager] Successfully written player data for account [TruSkillzzz (0x200069CC36410007)]
+426:[2026.05.03 19:32:17.613] [ Info] [PlayerHandle] Saved player data for account [TruSkillzzz (0x200069CC36410007)] to the database
+427:[2026.05.03 19:32:17.613] [ Info] [ClientManager] Removed PlayerHandle [(2) Account=TruSkillzzz (0x200069CC36410007), SessionId=0x300069F7DAFA0002]
+428:[2026.05.03 19:32:17.613] [Trace] [RegionHandle] RemovePlayer(): [[0x100069F7DAA10001] KnowhereHUBRegion (Tier1Normal)] - [(2) Account=TruSkillzzz (0x200069CC36410007), SessionId=0x300069F7DAFA0002]

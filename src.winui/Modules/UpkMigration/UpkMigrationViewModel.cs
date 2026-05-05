@@ -804,7 +804,8 @@ public sealed partial class UpkMigrationViewModel : INotifyPropertyChanged
                 AddServiceLog("Info", $"Injected target cache: {tfcPath}");
 
             UpdateStatus(
-                $"Knowhere profile complete. Preflight={result.PreflightPassed}, SourceChunks={result.PreflightSourceChunks:N0}, " +
+                $"Knowhere profile complete. Mode={result.SourceCandidateMode}, DependencyUpks={result.DependencySourceUpkCount:N0}, SignalTextures={result.DependencyTextureSignalCount:N0}, " +
+                $"Preflight={result.PreflightPassed}, SourceChunks={result.PreflightSourceChunks:N0}, " +
                 $"TargetChunks={result.PreflightTargetChunks:N0}, Matched={result.SourceMatchedEntries:N0}, AddedTextures={result.AddedTextureEntries:N0}, " +
                 $"PatchedTextures={result.PatchedTextureEntries:N0}, ReplacedInvalid={result.ReplacedInvalidChunks:N0}, AddedChunks={result.AddedChunks:N0}, " +
                 $"Verified={result.VerifiedChunks:N0}, VerifyFailures={result.VerificationFailures:N0}, " +

@@ -14,18 +14,6 @@
                         PointerReleased="PreviewPanel_PointerReleased"
                         PointerCanceled="PreviewPanel_PointerCanceled"
                         PointerWheelChanged="PreviewPanel_PointerWheelChanged" />
-
-        <Border
-            HorizontalAlignment="Right"
-            VerticalAlignment="Top"
-            Margin="12"
-            Padding="10"
-            CornerRadius="8"
-            MaxWidth="360">
-            <TextBlock
-                Text="{Binding DiagnosticsText, ElementName=Root}"
-                TextWrapping="WrapWholeWords" />
-        </Border>
     </Grid>
 </UserControl>
 

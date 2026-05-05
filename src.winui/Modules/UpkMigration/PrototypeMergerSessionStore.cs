@@ -41,7 +41,7 @@ internal static class PrototypeMergerSessionStore
         }
     }
 
-    public static void Remember(string? client148Root = null, string? client152Root = null)
+    public static void Remember(string? client148Root = null, string? client152Root = null, string? sourceUpkPath = null)
     {
         PrototypeMergerSessionData data = Load();
 
@@ -51,6 +51,9 @@ internal static class PrototypeMergerSessionStore
         if (client152Root is not null)
             data.Client152Root = client152Root;
 
+        if (sourceUpkPath is not null)
+            data.SourceUpkPath = sourceUpkPath;
+
         Save(data);
     }
 
@@ -59,6 +62,8 @@ internal static class PrototypeMergerSessionStore
         public string Client148Root { get; set; } = string.Empty;
 
         public string Client152Root { get; set; } = string.Empty;
+
+        public string SourceUpkPath { get; set; } = string.Empty;
     }
 }
 

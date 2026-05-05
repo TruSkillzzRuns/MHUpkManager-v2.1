@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -29,13 +30,18 @@ public sealed class MaterialEditorViewModel : Core.NotifyPropertyChangedBase
     private readonly ReplaceTextureSlotCommand replaceTextureSlotCommand;
     private readonly ResetParameterCommand resetParameterCommand;
     private MaterialEditorContext? context;
+    private readonly Stack<MaterialDefinition> undoHistory = new();
+    private const int MaxUndoDepth = 32;
+    private bool isApplyingUndo;
 
     private ObservableCollection<MaterialDefinition> materials = new();
     private ObservableCollection<string> previewSkeletalMeshExports = new();
     private ObservableCollection<string> previewLodOptions = new(["LOD 0"]);
+    private ObservableCollection<TextureMipOption> selectedTextureMipOptions = new();
     private readonly Dictionary<string, MaterialDefinition> originalMaterialSnapshots = new(StringComparer.OrdinalIgnoreCase);
     private MaterialDefinition? selectedMaterial;
     private MaterialTextureSlot? selectedTextureSlot;
+    private TextureMipOption? selectedTextureMipOption;
     private MaterialParameter? selectedParameter;
     private MaterialPreviewConfig previewConfig = new();
     private string previewMeshUpkPath = string.Empty;
@@ -47,6 +53,7 @@ public sealed class MaterialEditorViewModel : Core.NotifyPropertyChangedBase
     private string statusText = "Ready.";
     private string selectedMaterialSummary = "No material selected.";
     private string selectedTextureMetadataText = "Select a texture slot to inspect.";
+    private int? selectedTextureMipAbsoluteIndex;
 
     public MaterialEditorViewModel()
         : this(new MaterialEditorService(), new Textures2TextureEditorServiceAdapter())
@@ -92,6 +99,12 @@ public sealed class MaterialEditorViewModel : Core.NotifyPropertyChangedBase
             if (!SetProperty(ref selectedMaterial, value))
                 return;
 
+            undoHistory.Clear();
+            OnPropertyChanged(nameof(CanUndo));
+            selectedTextureMipAbsoluteIndex = null;
+            SelectedTextureMipOptions = new ObservableCollection<TextureMipOption>();
+            SelectedTextureMipOption = null;
+
             SelectedMaterialSummary = BuildMaterialSummary(value);
             SelectedTextureSlot = value?.TextureSlots.FirstOrDefault();
             SelectedParameter = value?.ScalarParameters.FirstOrDefault() ?? value?.VectorParameters.FirstOrDefault();
@@ -122,10 +135,36 @@ public sealed class MaterialEditorViewModel : Core.NotifyPropertyChangedBase
         private set => SetProperty(ref previewLodOptions, value);
     }
 
+    public ObservableCollection<TextureMipOption> SelectedTextureMipOptions
+    {
+        get => selectedTextureMipOptions;
+        private set => SetProperty(ref selectedTextureMipOptions, value);
+    }
+
     public MaterialTextureSlot? SelectedTextureSlot
     {
         get => selectedTextureSlot;
-        set => SetProperty(ref selectedTextureSlot, value);
+        set
+        {
+            if (!SetProperty(ref selectedTextureSlot, value))
+                return;
+
+            OnPropertyChanged(nameof(PreviewTextureSlotPath));
+        }
+    }
+
+    public TextureMipOption? SelectedTextureMipOption
+    {
+        get => selectedTextureMipOption;
+        set
+        {
+            if (!SetProperty(ref selectedTextureMipOption, value))
+                return;
+
+            selectedTextureMipAbsoluteIndex = value?.AbsoluteIndex;
+            OnPropertyChanged(nameof(PreviewTextureMipIndex));
+            RequestPreviewRefresh();
+        }
     }
 
     public MaterialParameter? SelectedParameter
@@ -243,6 +282,12 @@ public sealed class MaterialEditorViewModel : Core.NotifyPropertyChangedBase
         }
     }
 
+    public string PreviewTextureSlotPath => SelectedTextureSlot?.TexturePath ?? string.Empty;
+
+    public int PreviewTextureMipIndex => selectedTextureMipAbsoluteIndex ?? -1;
+
+    public bool CanUndo => undoHistory.Count > 0;
+
     public ICommand LoadMaterialCommand => loadMaterialCommand;
 
     public ICommand SaveMaterialCommand => saveMaterialCommand;
@@ -254,6 +299,40 @@ public sealed class MaterialEditorViewModel : Core.NotifyPropertyChangedBase
     public ICommand ReplaceTextureSlotCommand => replaceTextureSlotCommand;
 
     public ICommand ResetParameterCommand => resetParameterCommand;
+
+    public void CaptureUndoCheckpoint()
+    {
+        if (SelectedMaterial is null || isApplyingUndo)
+            return;
+
+        PushUndoSnapshot(SelectedMaterial.Clone());
+    }
+
+    public void UndoLastChange()
+    {
+        if (SelectedMaterial is null || undoHistory.Count == 0)
+            return;
+
+        MaterialDefinition snapshot = undoHistory.Pop();
+        isApplyingUndo = true;
+        try
+        {
+            SelectedMaterial.CopyFrom(snapshot);
+        }
+        finally
+        {
+            isApplyingUndo = false;
+        }
+
+        SelectedMaterialSummary = BuildMaterialSummary(SelectedMaterial);
+        SelectedTextureSlot = SelectedMaterial.TextureSlots.FirstOrDefault();
+        SelectedParameter = SelectedMaterial.ScalarParameters.FirstOrDefault() ?? SelectedMaterial.VectorParameters.FirstOrDefault();
+        Context?.PublishMaterial(SelectedMaterial);
+        OnPropertyChanged(nameof(CanUndo));
+        _ = RefreshSelectedTextureMetadataAsync();
+        RequestPreviewRefresh();
+        StatusText = "Undo applied.";
+    }
 
     public async Task LoadUpkAsync(string upkPath)
     {
@@ -271,6 +350,8 @@ public sealed class MaterialEditorViewModel : Core.NotifyPropertyChangedBase
         Materials.Clear();
         materialEditorService.Clear();
         originalMaterialSnapshots.Clear();
+        undoHistory.Clear();
+        OnPropertyChanged(nameof(CanUndo));
 
         foreach (string upkPath in upkPaths.Where(path => !string.IsNullOrWhiteSpace(path)))
         {
@@ -332,6 +413,8 @@ public sealed class MaterialEditorViewModel : Core.NotifyPropertyChangedBase
     public void SelectTextureSlot(MaterialTextureSlot? slot)
     {
         SelectedTextureSlot = slot;
+        selectedTextureMipAbsoluteIndex = null;
+        SelectedTextureMipOption = null;
         SetPreviewChannelForSlot(slot, false);
         openTextureInTextures2Command.NotifyCanExecuteChanged();
         _ = RefreshSelectedTextureMetadataAsync();
@@ -367,6 +450,9 @@ public sealed class MaterialEditorViewModel : Core.NotifyPropertyChangedBase
         if (string.IsNullOrWhiteSpace(replacementPath))
             return;
 
+        if (SelectedMaterial is not null)
+            PushUndoSnapshot(SelectedMaterial.Clone());
+
         StatusText = $"Replacing {target.SlotName}...";
         try
         {
@@ -387,6 +473,9 @@ public sealed class MaterialEditorViewModel : Core.NotifyPropertyChangedBase
         if (parameter is null)
             return;
 
+        if (SelectedMaterial is not null)
+            PushUndoSnapshot(SelectedMaterial.Clone());
+
         if (parameter.Category.Equals("Scalar", StringComparison.OrdinalIgnoreCase))
             parameter.ScalarValue = parameter.DefaultScalarValue;
         else
@@ -400,6 +489,8 @@ public sealed class MaterialEditorViewModel : Core.NotifyPropertyChangedBase
     {
         if (SelectedMaterial is null)
             return;
+
+        PushUndoSnapshot(SelectedMaterial.Clone());
 
         if (!originalMaterialSnapshots.TryGetValue(SelectedMaterial.Path, out MaterialDefinition? snapshot))
             return;
@@ -500,6 +591,8 @@ public sealed class MaterialEditorViewModel : Core.NotifyPropertyChangedBase
         if (slot is null)
         {
             SelectedTextureMetadataText = "Select a texture slot to inspect.";
+            SelectedTextureMipOptions = new ObservableCollection<TextureMipOption>();
+            SelectedTextureMipOption = null;
             return;
         }
 
@@ -507,6 +600,8 @@ public sealed class MaterialEditorViewModel : Core.NotifyPropertyChangedBase
         if (string.IsNullOrWhiteSpace(sourceUpkPath))
         {
             SelectedTextureMetadataText = "No source UPK selected for texture metadata.";
+            SelectedTextureMipOptions = new ObservableCollection<TextureMipOption>();
+            SelectedTextureMipOption = null;
             return;
         }
 
@@ -514,10 +609,16 @@ public sealed class MaterialEditorViewModel : Core.NotifyPropertyChangedBase
         {
             TextureMetadata? metadata = await textureEditorService.GetTextureMetadataAsync(slot.TextureName, slot.TexturePath, sourceUpkPath).ConfigureAwait(true);
             SelectedTextureMetadataText = BuildTextureMetadataText(metadata);
+            IReadOnlyList<TextureMipOption> options = ParseMipOptions(metadata);
+            SelectedTextureMipOptions = new ObservableCollection<TextureMipOption>(options);
+            TextureMipOption? preferred = SelectPreferredMipOption(options, selectedTextureMipAbsoluteIndex);
+            SelectedTextureMipOption = preferred;
         }
         catch (Exception ex)
         {
             SelectedTextureMetadataText = "Texture metadata unavailable.";
+            SelectedTextureMipOptions = new ObservableCollection<TextureMipOption>();
+            SelectedTextureMipOption = null;
             App.WriteDiagnosticsLog("MaterialEditor.TextureMetadata", ex.ToString());
         }
     }
@@ -583,6 +684,87 @@ public sealed class MaterialEditorViewModel : Core.NotifyPropertyChangedBase
             return nameof(MeshPreviewMaterialChannel.Mask);
 
         return nameof(MeshPreviewMaterialChannel.BaseColor);
+    }
+
+    private void PushUndoSnapshot(MaterialDefinition snapshot)
+    {
+        if (isApplyingUndo)
+            return;
+
+        undoHistory.Push(snapshot);
+        while (undoHistory.Count > MaxUndoDepth)
+        {
+            // keep most recent snapshots
+            MaterialDefinition[] retained = undoHistory.Take(MaxUndoDepth).Reverse().ToArray();
+            undoHistory.Clear();
+            foreach (MaterialDefinition item in retained)
+                undoHistory.Push(item);
+            break;
+        }
+
+        OnPropertyChanged(nameof(CanUndo));
+    }
+
+    private static IReadOnlyList<TextureMipOption> ParseMipOptions(TextureMetadata? metadata)
+    {
+        if (metadata?.MipSummaries is null || metadata.MipSummaries.Count == 0)
+            return [];
+
+        List<TextureMipOption> options = [];
+        foreach (string summary in metadata.MipSummaries)
+        {
+            if (string.IsNullOrWhiteSpace(summary))
+                continue;
+
+            // format: "{absolute}: {width}x{height} {format} {source}"
+            string[] headParts = summary.Split(':', 2, StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
+            if (headParts.Length != 2 || !int.TryParse(headParts[0], NumberStyles.Integer, CultureInfo.InvariantCulture, out int absolute))
+                continue;
+
+            string detail = headParts[1];
+            string[] detailParts = detail.Split(' ', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
+            if (detailParts.Length < 3)
+                continue;
+
+            string[] dimParts = detailParts[0].Split('x', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
+            if (dimParts.Length != 2 ||
+                !int.TryParse(dimParts[0], NumberStyles.Integer, CultureInfo.InvariantCulture, out int width) ||
+                !int.TryParse(dimParts[1], NumberStyles.Integer, CultureInfo.InvariantCulture, out int height))
+            {
+                continue;
+            }
+
+            string format = detailParts[1];
+            string source = detailParts[^1];
+            options.Add(new TextureMipOption
+            {
+                AbsoluteIndex = absolute,
+                Width = width,
+                Height = height,
+                Format = format,
+                Source = source
+            });
+        }
+
+        return options
+            .OrderByDescending(option => option.Width * option.Height)
+            .ThenBy(option => option.AbsoluteIndex)
+            .ToArray();
+    }
+
+    private static TextureMipOption? SelectPreferredMipOption(IReadOnlyList<TextureMipOption> options, int? preferredAbsoluteIndex)
+    {
+        if (options.Count == 0)
+            return null;
+
+        if (preferredAbsoluteIndex.HasValue)
+        {
+            TextureMipOption? preferred = options.FirstOrDefault(option => option.AbsoluteIndex == preferredAbsoluteIndex.Value);
+            if (preferred is not null)
+                return preferred;
+        }
+
+        return options.FirstOrDefault();
     }
 
     private void RequestPreviewRefresh() => PreviewRefreshToken++;

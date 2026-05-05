@@ -33,11 +33,11 @@ public sealed partial class MaterialEditorView : Page
         NavigationCacheMode = NavigationCacheMode.Required;
         viewModel.AttachContext(materialEditorContext);
         viewModel.PropertyChanged += ViewModel_PropertyChanged;
-        materialGraphEditorView = new MaterialGraphEditorView { DataContext = new MaterialGraphEditorViewModel() };
-        shaderInspectorView = new ShaderInspectorView { DataContext = new ShaderInspectorViewModel() };
-        shaderVariantTesterView = new ShaderVariantTesterView { DataContext = new ShaderVariantTesterViewModel() };
-        materialOverrideView = new MaterialOverrideView { DataContext = new MaterialOverrideViewModel() };
-        colorVariantGeneratorView = new ColorVariantGeneratorView { DataContext = new ColorVariantGeneratorViewModel() };
+        materialGraphEditorView = new MaterialGraphEditorView { DataContext = new MaterialGraphEditorViewModel(materialEditorContext.Services) };
+        shaderInspectorView = new ShaderInspectorView { DataContext = new ShaderInspectorViewModel(materialEditorContext.Services) };
+        shaderVariantTesterView = new ShaderVariantTesterView { DataContext = new ShaderVariantTesterViewModel(materialEditorContext.Services) };
+        materialOverrideView = new MaterialOverrideView { DataContext = new MaterialOverrideViewModel(materialEditorContext.Services) };
+        colorVariantGeneratorView = new ColorVariantGeneratorView { DataContext = new ColorVariantGeneratorViewModel(materialEditorContext.Services) };
         AttachContexts();
         InitializeMaterialTools();
     }
@@ -60,6 +60,11 @@ public sealed partial class MaterialEditorView : Page
     private void SaveMaterial_Click(object sender, RoutedEventArgs e)
     {
         viewModel.SaveMaterialCommand.Execute(null);
+    }
+
+    private void UndoLastChange_Click(object sender, RoutedEventArgs e)
+    {
+        viewModel.UndoLastChange();
     }
 
     private void ResetAll_Click(object sender, RoutedEventArgs e)
@@ -90,6 +95,11 @@ public sealed partial class MaterialEditorView : Page
     {
         if (sender is FrameworkElement element)
             viewModel.ResetParameter(element.Tag as MaterialParameter);
+    }
+
+    private void ScalarTextBox_GotFocus(object sender, RoutedEventArgs e)
+    {
+        viewModel.CaptureUndoCheckpoint();
     }
 
     private void InitializeMaterialTools()
@@ -138,10 +148,10 @@ public sealed partial class MaterialEditorView : Page
             graphViewModel.LoadMaterial(instance);
 
         if (shaderInspectorView.DataContext is ShaderInspectorViewModel shaderInspectorViewModel)
-            shaderInspectorViewModel.SelectedShader = instance.ShaderReference;
+            shaderInspectorViewModel.LoadMaterial(instance);
 
         if (shaderVariantTesterView.DataContext is ShaderVariantTesterViewModel shaderVariantTesterViewModel)
-            shaderVariantTesterViewModel.SelectedShader = instance.ShaderReference;
+            shaderVariantTesterViewModel.LoadMaterial(instance);
 
         if (materialOverrideView.DataContext is MaterialOverrideViewModel materialOverrideViewModel)
             materialOverrideViewModel.SelectedMaterial = instance;
